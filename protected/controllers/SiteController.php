@@ -29,7 +29,14 @@ class SiteController extends Controller
 	{
 		// renders the view file 'protected/views/site/index.php'
 		// using the default layout 'protected/views/layouts/main.php'
-		$this->render('index');
+                $model = new AccessRights();
+                $account_type_id = Yii::app()->user->accountType();
+                if(Yii::app()->user->isAdmin())
+                    $menus = $model->getAllMenus();
+                else
+                    $menus = $model->getMenus($account_type_id);
+                
+		$this->render('index',array('menus'=>$menus));
 	}
 
 	/**
@@ -71,25 +78,30 @@ class SiteController extends Controller
 	 */
 	public function actionLogin()
 	{
-		$model=new LoginForm;
+            $model=new LoginForm;
 
-		// if it is ajax validation request
-		if(isset($_POST['ajax']) && $_POST['ajax']==='login-form')
-		{
-			echo CActiveForm::validate($model);
-			Yii::app()->end();
-		}
+            // if it is ajax validation request
+            if(isset($_POST['ajax']) && $_POST['ajax']==='login-form')
+            {
+                    echo CActiveForm::validate($model);
+                    Yii::app()->end();
+            }
 
-		// collect user input data
-		if(isset($_POST['LoginForm']))
-		{
-			$model->attributes=$_POST['LoginForm'];
-			// validate user input and redirect to the previous page if valid
-			if($model->validate() && $model->login())
-				$this->redirect(Yii::app()->user->returnUrl);
-		}
-		// display the login form
-		$this->render('login',array('model'=>$model));
+            // collect user input data
+            if(isset($_POST['LoginForm']))
+            {
+                    $model->attributes=$_POST['LoginForm'];
+                    // validate user input and redirect to the previous page if valid
+                    if($model->validate() && $model->login())
+                    {
+                        if(Yii::app()->user->accountType() == 2)
+                            $this->redirect(array("cashier/index"));
+                        else
+                            $this->redirect(array("site/index"));
+                    }
+            }
+            // display the login form
+            $this->render('login',array('model'=>$model));
 	}
 
 	/**

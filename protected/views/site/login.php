@@ -3,44 +3,64 @@
 /* @var $model LoginForm */
 /* @var $form CActiveForm  */
 
-$this->pageTitle=Yii::app()->name . ' - Login';
-$this->breadcrumbs=array(
-	'Login',
+$this->layout = '//layouts/login';
+$this->pageTitle = Yii::app()->name . ' - Login';
+$this->breadcrumbs = array(
+    'Login',
 );
 ?>
 
-<h1>Login</h1>
+<?php
+$baseUrl = Yii::app()->baseUrl;
+$cs = Yii::app()->getClientScript();
+$cs->registerScriptFile($baseUrl . '/js/jquery.plugin.js');
+$cs->registerScriptFile($baseUrl . '/js/jquery.keypad.js');
+$cs->registerCssFile($baseUrl . '/css/jquery.keypad.css');
 
-<p>Please fill out the following form with your login credentials:</p>
+Yii::app()->clientScript->registerScript('ui', '
+           
+    $("#LoginForm_passcode").keypad({
+        layout: ["12345", "67890", 
+        $.keypad.CLEAR + $.keypad.BACK + $.keypad.CLOSE]
+    }); 
+    
+    $("#removeKeypad").toggle(function() { 
+        $(this).text("Re-attach"); 
+        $("#LoginForm_passcode").keypad("destroy"); 
+    }), 
+    
+    function() { 
+        $(this).text("Remove"); 
+        $("#LoginForm_passcode").keypad(); 
+        
+    }
+    
+ ', CClientScript::POS_END);
+?>
 
-<div class="form">
+<?php
+$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+    'id' => 'login-form',
+    'layout' => TbHtml::FORM_LAYOUT_HORIZONTAL,
+    'enableClientValidation' => true,
+    'clientOptions' => array(
+        'validateOnSubmit' => true,
+    ),
+        ));
+?>
 
-<?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-	'id'=>'login-form',
-        'layout' => TbHtml::FORM_LAYOUT_HORIZONTAL,
-	'enableClientValidation'=>true,
-	'clientOptions'=>array(
-		'validateOnSubmit'=>true,
-	),
-)); ?>
+<fieldset>
+    <legend>Login</legend>
 
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
+    <?php echo $form->passwordFieldControlGroup($model, 'passcode', array()); ?>
 
-	<?php echo $form->textFieldControlGroup($model,'username'); ?>
-
-	<?php echo $form->passwordFieldControlGroup($model,'password',array(
-        'hint'=>'Hint: You may login with <kbd>demo</kbd>/<kbd>demo</kbd> or <kbd>admin</kbd>/<kbd>admin</kbd>',
-    )); ?>
-
-	<?php echo $form->checkBoxControlGroup($model,'rememberMe'); ?>
-
-	<!--<div class="form-actions">-->
-		<?php echo TbHtml::formActions(array(
-                TbHtml::submitButton('Login', array('color' => TbHtml::BUTTON_COLOR_PRIMARY)),
-//                TbHtml::resetButton('Reset'),
-                )); ?>
-	<!--</div>-->
+</fieldset>
+<?php
+echo TbHtml::formActions(array(
+    TbHtml::submitButton('Login', array('color' => TbHtml::BUTTON_COLOR_PRIMARY)),
+));
+?>
 
 <?php $this->endWidget(); ?>
 
-</div><!-- form -->
+

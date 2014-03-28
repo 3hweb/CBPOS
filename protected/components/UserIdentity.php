@@ -7,27 +7,37 @@
  */
 class UserIdentity extends CUserIdentity
 {
+        const ERROR_ACCOUNT_INVALID = 5;
+        const ERROR_PASSCODE_INVALID = 6;
+        
+	private $_id;
+
 	/**
 	 * Authenticates a user.
-	 * The example implementation makes sure if the username and password
-	 * are both 'demo'.
-	 * In practical applications, this should be changed to authenticate
-	 * against some persistent user identity storage (e.g. database).
 	 * @return boolean whether authentication succeeds.
 	 */
 	public function authenticate()
 	{
-		$users=array(
-			// username => password
-			'demo'=>'demo',
-			'admin'=>'admin',
-		);
-		if(!isset($users[$this->username]))
-			$this->errorCode=self::ERROR_USERNAME_INVALID;
-		else if($users[$this->username]!==$this->password)
-			$this->errorCode=self::ERROR_PASSWORD_INVALID;
+                $account = Accounts::model()->findByAttributes(array('account_code'=>  substr($this->password, 0,3)));
+                
+		if($account===null)
+			$this->errorCode=self::ERROR_ACCOUNT_INVALID;
+		else if(!$account->validatePassword($this->password))
+			$this->errorCode=self::ERROR_PASSCODE_INVALID;
 		else
+		{
+			$this->_id=$account->account_id;
+			$this->username=$account->account_code;
 			$this->errorCode=self::ERROR_NONE;
-		return !$this->errorCode;
+		}
+		return $this->errorCode==self::ERROR_NONE;
+	}
+
+	/**
+	 * @return integer the ID of the user record
+	 */
+	public function getId()
+	{
+		return $this->_id;
 	}
 }

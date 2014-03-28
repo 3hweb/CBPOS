@@ -1,0 +1,67 @@
+/* 
+    Document   : menu
+    Created on : Mar 28, 2014, 1:35:08 PM
+    Author     : owliber
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+}
+
+#page {margin-top: 50px}
+
+.menu li
+{
+    list-style: none;
+    padding: 10px 20px;
+    
+    width: 140px;
+    height: 130px;
+    text-align: center;
+    border-radius: 10px;
+    display: inline-table;
+    margin-top: 10px;
+    margin-left: 10px;
+    background: #bbe1e4;
+    
+}
+
+.menu li a
+{
+    text-decoration:  none;
+}
+
+.menu li.cashier
+{
+    background: url('../images/new-transaction-icon.png') center no-repeat #def9c0; 
+    
+}
+
+.menu li.user-mgmt
+{
+    background: url('../images/user-mgmt-icon.png') center no-repeat #def9c0; 
+}
+
+.menu li.menu-mgmt
+{
+    background: url('../images/item-mgmt-icon.png') center no-repeat #def9c0; 
+}
+
+.menu li.sales-report
+{
+    background: url('../images/item-mgmt-icon.png') center no-repeat #def9c0; 
+}
+
+
+.menu li.logout
+{
+    background: url('../images/close-icon.png') center no-repeat #def9c0;        
+}
+
+.menu li a:hover
+{
+    color: #ff0000;
+}
+

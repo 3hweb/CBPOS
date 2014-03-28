@@ -7,9 +7,7 @@
  */
 class LoginForm extends CFormModel
 {
-	public $username;
-	public $password;
-	public $rememberMe;
+        public $passcode;
 
 	private $_identity;
 
@@ -21,12 +19,9 @@ class LoginForm extends CFormModel
 	public function rules()
 	{
 		return array(
-			// username and password are required
-			array('username, password', 'required'),
-			// rememberMe needs to be a boolean
-			array('rememberMe', 'boolean'),
+			array('passcode', 'required'),
 			// password needs to be authenticated
-			array('password', 'authenticate'),
+			array('passcode', 'authenticate'),
 		);
 	}
 
@@ -36,7 +31,7 @@ class LoginForm extends CFormModel
 	public function attributeLabels()
 	{
 		return array(
-			'rememberMe'=>'Remember me next time',
+			'passcode'=>'Passcode',
 		);
 	}
 
@@ -46,12 +41,9 @@ class LoginForm extends CFormModel
 	 */
 	public function authenticate($attribute,$params)
 	{
-		if(!$this->hasErrors())
-		{
-			$this->_identity=new UserIdentity($this->username,$this->password);
-			if(!$this->_identity->authenticate())
-				$this->addError('password','Incorrect username or password.');
-		}
+		$this->_identity=new UserIdentity(substr($this->passcode,0,3),$this->passcode);
+		if(!$this->_identity->authenticate())
+			$this->addError('password','Incorrect passcode.');
 	}
 
 	/**
@@ -62,13 +54,19 @@ class LoginForm extends CFormModel
 	{
 		if($this->_identity===null)
 		{
-			$this->_identity=new UserIdentity($this->username,$this->password);
+			$this->_identity=new UserIdentity(substr($this->passcode,0,3),$this->passcode);
 			$this->_identity->authenticate();
 		}
 		if($this->_identity->errorCode===UserIdentity::ERROR_NONE)
 		{
-			$duration=$this->rememberMe ? 3600*24*30 : 0; // 30 days
+			$duration= 3600*8; // 8 hours
 			Yii::app()->user->login($this->_identity,$duration);
+                        
+                        $account = Accounts::model()->findByAttributes(array('account_code'=>  substr($this->passcode, 0,3)));
+                        
+                        Yii::app()->session['account_type_id'] = $account->account_type_id;
+                        Yii::app()->session['account_id'] = $account->account_id;
+                        
 			return true;
 		}
 		else
