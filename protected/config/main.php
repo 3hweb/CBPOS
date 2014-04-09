@@ -19,6 +19,7 @@ return array(
 	// autoloading model and component classes
 	'import'=>array(
 		'application.models.*',
+                'application.controllers.*',
 		'application.components.*',
                 'bootstrap.helpers.TbHtml',
                 'bootstrap.helpers.TbArray',
