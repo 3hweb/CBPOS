@@ -25,32 +25,38 @@ class CommonTransactionsModel extends CFormModel{
        $orderSummaryId = null;
        $beginTransaction = $this->_connection->beginTransaction();
        $sql = "SELECT order_summary_id FROM order_summary 
-                WHERE invoice_no = :invoice_no";
+                WHERE Status = 0";
        $command = $this->_connection->createCommand($sql);
        $command->bindParam(':invoice_no', $invoiceNo);
        $result = $command->queryRow();
        $orderSummaryId = (int)$result['order_summary_id'];
        
-       $isInsertSuccess = false;
+       $totalAmount = $itemQuantity * $itemAmount;
+       
+       $isExecuteSuccess = false;
        //if has existing record with the same invoice_no then update the record 
        //else insert
        if($orderSummaryId > 0){
             $sql = 'UPDATE order_summary SET total_quantity = total_quantity + :item_quantity,
-                    total_amount = total_amount + :item_amount, tax_amount = :tax_amount
+                    total_amount = total_amount + :total_amount, tax_amount = :tax_amount,
                     net_amount = :net_amount, status = :status WHERE order_summary_id = :order_summary_id';
+            
             $command = $this->_connection->createCommand($sql);
             
             $command->bindValues(array(':item_quantity'=>$itemQuantity,
-                                       ':item_amount'=>$itemAmount,
+                                       ':total_amount'=>$totalAmount,
                                        ':tax_amount'=>$taxAmount,
                                        ':net_amount'=>$netAmount,
                                        ':status'=>$status,
                                        ':order_summary_id'=>$orderSummaryId));
+            $isExecuteSuccess = $command->execute();
+            
        } else {
+           $invoiceNo = mt_rand().$menuItemId;
            $sql = 'INSERT INTO order_summary(invoice_no, terminal_id, menu_item_id, 
                 total_quantity, total_amount, tax_amount, net_amount, discount_id, 
                 payment_type_id, reprinted, dine_type, date_created, created_by_aid, 
-                status) VALUES(:invoice_no, :terminal_id, :menu_item_id, :total_quantity,
+                status) VALUES(:invoice_no + order_summary_id, :terminal_id, :menu_item_id, :total_quantity,
                        :total_amount, :tax_amount, :net_amount, :discount_id,
                        :payment_type_id, :reprinted, :dine_type, NOW(6), :created_by_aid,
                        :status)';
@@ -71,12 +77,12 @@ class CommonTransactionsModel extends CFormModel{
                                        ':status'=>$status
                                      )
                                 );
-            $isInsertSuccess = $command->execute();
+            $isExecuteSuccess = $command->execute();
             
             $orderSummaryId = $this->_connection->getLastInsertID();
        }
        
-       if ($command->execute()) {
+       if ($isExecuteSuccess) {
             
             $sql = "INSERT INTO order_details(order_summary_id, menu_item_id, quantity, 
                         amount, date_created)
@@ -86,7 +92,7 @@ class CommonTransactionsModel extends CFormModel{
             $command->bindValues(array(':order_summary_id' => $orderSummaryId,
                 ':menu_item_id' => $menuItemId,
                 ':quantity' => $itemQuantity,
-                ':amount' => $itemAmount
+                ':amount' => $totalAmount
             ));
 
             if ($command->execute()) {

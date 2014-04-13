@@ -16,6 +16,10 @@ class ReferenceInfoController{
     static $ADDRESS;
     static $TIN;
     static $PERMIT_NO;
+    
+    public function __construct() {
+        $this->getReceiptInfo();
+    }
 
     public function getReceiptInfo(){
         $getReceiptInfoModel = new RefVariablesModel();

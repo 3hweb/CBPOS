@@ -1,5 +1,6 @@
 <script type="text/javascript">
 $(document).ready(function(){
+        $(':text').val("");
 	function showLoader(){
 		$('.search-background').fadeIn(200);
 	}
@@ -46,7 +47,7 @@ $(document).ready(function(){
 </div>
 <br />
 <div id="sidebar" style="margin-top: 180px; float: left; position: absolute; margin-left: -50px;">
-    <div style="overflow-y: scroll;height: 450px;width: 400px;">
+    <div style="overflow-y: scroll;height: 550px;width: 400px;">
         <p style="text-align: center;">
             <?php echo ReferenceInfoController::$NAME; ?>
             <br />
@@ -59,43 +60,58 @@ $(document).ready(function(){
             Terminal : <?php echo ''; ?> <br /> 
             Cashier :  <?php echo ''; ?> <br />
         </p>
-        <table id="tblReceiptInfo" style="text-align: center;">
-            <thead>
-                <tr>
-                    <th style="padding: 20px;"></th>
-                    <th style="padding: 20px;">Item</th>
-                    <th style="padding: 20px;">Qty</th>
-                    <th style="padding: 20px;">Price</th>
-                    <th style="padding: 20px;">Amount</th>
-                </tr>
-            </thead>
+        <table id="tblReceiptInfo" style="text-align: right;margin-left: 60px;word-break: normal;">
+            
         </table>
         <hr size="20%"/>
+        <table style="text-align: right;margin-left: 70px;word-break: normal;">
+            <tr>
+                <td>Total (VAT Inclusive)</td>
+                <td style='padding-left: 50px;'>
+                    <label id="lblTotalAmt"></label>
+                    <?php echo TbHtml::hiddenField("txtTotalAmt");?>
+                </td>
+            </tr>
+            <tr>
+                <td>Subtotal (12% VAT)</td>
+                <td style='padding-left: 50px;'>
+                    <label id="lblSubTotal"></label>
+                    <?php echo TbHtml::hiddenField("txtSubTotal");?>
+                </td>
+            </tr>
+            <tr>
+                <td>VAT Amount</td>
+                <td style='padding-left: 50px;'>
+                    <label id="lblVatAmount"></label>
+                    <?php echo TbHtml::hiddenField("txtVatAmt");?>
+                </td>
+            </tr>
+        </table>
+        <hr size="20%"/>
+        <table>
+            <tr>
+                <td>Cash Tendered</td>
+                <td>
+                    <label id="lblCashTendered"></label>
+                    <?php echo TbHtml::hiddenField("txtCashTendered");?>
+                </td>
+            </tr>
+            <tr>
+                <td>Cash Changed</td>
+                <td>
+                    <label id="lblCashChanged"></label>
+                    <?php echo TbHtml::hiddenField("txtCashChanged");?>
+                </td>
+            </tr>
+        </table>
+        <hr size="20%"/>
+        <p>Receipt # : <label id="lblReceipt"></label> 
+           <?php echo TbHtml::hiddenField("txtReceiptNo"); ?>
+        </p>
+        <br />
         <p>
             This serves as an official receipt
         </p>
-    </div>
-    <div style="margin-top: 50px; position: absolute;">
-        <?php
-        echo TbHtml::buttonGroup(array(
-                        array('label' => 'DINE-IN'),
-                        array('label' => 'TAKEOUT'),
-                        array('label' => 'DELIVERY'),
-                        array('label' => 'BULK ORDER'),
-                    ), array('toggle' => TbHtml::BUTTON_TOGGLE_RADIO, 
-                        'color' => TbHtml::BUTTON_COLOR_PRIMARY));
-        ?>
-        <?php 
-//            echo "DINE-IN ".TbHtml::radioButton("optDineIn",array('toggle' => TbHtml::BUTTON_TOGGLE_RADIO, 
-//                        'color' => TbHtml::BUTTON_COLOR_PRIMARY));
-//            echo '&nbsp&nbsp';
-//            echo "TAKEOUT ".TbHtml::radioButton("optTakeout",array());
-//            echo '&nbsp&nbsp';
-//            echo "DELIVERY ".TbHtml::radioButton("optDelivery",array());
-//            echo '&nbsp&nbsp';
-//            echo "BULK ORDER ".TbHtml::radioButton("optBulkOrder",array());
-//            echo '&nbsp&nbsp';
-        ?>
     </div>
 </div>
 
@@ -138,6 +154,9 @@ $(document).ready(function(){
         echo TbHtml::button('SAVE',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
                                          'size'=>  TbHtml::BUTTON_SIZE_LARGE,
                                          'image'=>  TbHtml::IMAGE_TYPE_ROUNDED,
+                                         'onclick'=>'displayPaymentData();',
+                                         'data-toggle' => 'modal',
+                                         'data-target' => '#modalSave',
                                         )
                            );
         echo '&nbsp&nbsp&nbsp';
