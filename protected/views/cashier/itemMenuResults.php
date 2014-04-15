@@ -10,6 +10,7 @@ while ($menuItemsResult = mysql_fetch_assoc($rsd))
                                            $menuItemsResult['menu_item_id'].'");',
                 'data-toggle' => 'modal',
                 'data-target' => '#myModal',
+                'style' => 'height:120px; width:180px',
             ));
             echo '&nbsp&nbsp';
         ?>
