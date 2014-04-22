@@ -40,7 +40,7 @@
 	<div class="clear"></div>
 
 	<div id="footer">
-		Copyright &copy; <?php echo date('Y'); ?> by My Company.
+            Copyright &copy; <?php echo date('Y'); ?> by <?php echo Yii::app()->params['companyName']; ?>.
 	</div><!-- footer -->
 
 </div><!-- page -->

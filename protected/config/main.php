@@ -21,6 +21,7 @@ return array(
 		'application.models.*',
                 'application.controllers.*',
 		'application.components.*',
+                'bootstrap.components.TbApi',
                 'bootstrap.helpers.TbHtml',
                 'bootstrap.helpers.TbArray',
                 'bootstrap.behaviors.TbWidget',
@@ -97,5 +98,6 @@ return array(
 	'params'=>array(
 		// this is used in contact page
 		'adminEmail'=>'webmaster@example.com',
+                'companyName'=>'Chickboy',
 	),
 );

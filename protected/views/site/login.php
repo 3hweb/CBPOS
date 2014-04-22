@@ -19,11 +19,12 @@ $cs->registerCssFile($baseUrl . '/css/jquery.keypad.css');
 
 Yii::app()->clientScript->registerScript('ui', '
            
-    $("#LoginForm_passcode").keypad({
-        layout: ["12345", "67890", 
-        $.keypad.CLEAR + $.keypad.BACK + $.keypad.CLOSE]
-    }); 
+   // $("#LoginForm_passcode").keypad({
+   //     layout: ["12345", "67890", 
+   //     $.keypad.CLEAR + $.keypad.BACK + $.keypad.CLOSE]
+   // }); 
     
+    $("#LoginForm_passcode").keypad({closeText: "Done"});
     $("#removeKeypad").toggle(function() { 
         $(this).text("Re-attach"); 
         $("#LoginForm_passcode").keypad("destroy"); 

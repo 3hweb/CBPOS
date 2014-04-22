@@ -14,7 +14,7 @@ $this->pageTitle=Yii::app()->name;
             <?php echo CHtml::link($menu['menu_name'], array($menu['menu_link'])); ?></li>
             <?php }
         ?>
-    <li class="logout"><fkey>F12</fkey> <a href="index.php?r=site/logout">Logout</a></li>    
+    <li class="logout"><fkey></fkey> <a href="index.php?r=site/logout">Logout</a></li>    
     </ul>
 </div>
 
