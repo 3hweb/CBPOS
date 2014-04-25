@@ -82,10 +82,12 @@ class UserModel extends CFormModel
                     ad.last_name,
                     ad.mobile_no,
                     ad.email,
+                    ad.address,
                     CASE a.account_type_id WHEN 1 THEN 'Admin' WHEN 2 THEN 'Cashier'
                     END `account_type`,
-                    CASE a.status WHEN 0 THEN 'Inactive' WHEN 1 THEN 'Active' WHEN 2 THEN 'Deactivated'
-                    END `status`
+                    a.status
+               --     CASE a.status WHEN 0 THEN 'Inactive' WHEN 1 THEN 'Active' WHEN 2 THEN 'Deactivated'
+               --     END `status`,
                   FROM accounts a
                     INNER JOIN account_details ad
                       ON a.account_id = ad.account_id
@@ -95,7 +97,7 @@ class UserModel extends CFormModel
         $result = $command->queryRow();
         return $result;
     }
-    
+        
     public function getMaxAccountCode()
     {
         $query = "SELECT (max(account_code) + 1) as account_code
@@ -148,6 +150,113 @@ class UserModel extends CFormModel
         }
     }
     
+    public function update()
+    {
+        $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE account_details
+                    SET first_name = :firstname,
+                        last_name = :last_name,
+                        mobile_no = :mobile_no,
+                        email = :email,
+                        address = :address
+                  WHERE account_id = :account_id";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':account_id', $this->account_id);
+        $command->bindParam(':firstname', $this->first_name);
+        $command->bindParam(':last_name', $this->last_name);
+        $command->bindParam(':mobile_no', $this->mobile_no);
+        $command->bindParam(':email', $this->email);
+        $command->bindParam(':address', $this->address);
+        $command->execute();
+        
+        try
+        {
+            if(!$this->hasErrors())
+            {
+                $trx->commit ();
+                
+            }
+            else
+            {
+                $trx->rollback();
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
+    }
+    
+    public function set_status()
+    {
+        $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE accounts
+                    SET status = :status
+                  WHERE account_id = :account_id";
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':account_id', $this->account_id);
+        $command->bindParam(':status', $this->status);
+        $command->execute();
+        
+        try
+        {
+            if(!$this->hasErrors())
+            {
+                $trx->commit ();
+                
+            }
+            else
+            {
+                $trx->rollback();
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
+    }
+    
+    public function update_passcode()
+    {
+        $conn = $this->_connection;
+        $trx = $conn->beginTransaction();
+        
+        $query = "UPDATE accounts
+                    SET passcode = :passcode
+                  WHERE account_id = :account_id";
+        
+        $passcode = UserController::hashPassword($this->account_code, $this->passcode_repeat);
+        
+        $command = $conn->createCommand($query);
+        $command->bindParam(':account_id', $this->account_id);
+        $command->bindParam(':passcode', $passcode);
+        
+        $command->execute();
+        
+        try
+        {
+            if(!$this->hasErrors())
+            {
+                $trx->commit ();
+                
+            }
+            else
+            {
+                $trx->rollback();
+            }
+        }
+        catch(PDOException $e)
+        {
+            $trx->rollback();
+        }
+    }
+        
 }
 ?>
 

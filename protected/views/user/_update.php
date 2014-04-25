@@ -110,18 +110,3 @@ Yii::app()->clientScript->registerScript('ui', '
     ),
 )); ?>
 
-<?php
-
-$content = '<fieldset>'.TbHtml::passwordField('passcode').'</fieldset>';
-
-?>
-
-<?php $this->widget('bootstrap.widgets.TbModal', array(
-    'id' => 'update-password-modal',
-    'header' => 'Change Password',
-    'content' => $content,
-    'footer' => array(
-    TbHtml::button('Update Password', array('data-dismiss' => 'modal', 'color' => TbHtml::BUTTON_COLOR_PRIMARY)),
-    TbHtml::button('Close', array('data-dismiss' => 'modal')),
-    ),
-)); ?>
