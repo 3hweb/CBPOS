@@ -54,8 +54,8 @@ Yii::app()->clientScript->registerScript('ui', '
 <legend>Password Information</legend>
 
 <?php echo TbHtml::hiddenField('account_code', $account_code); ?>
-<?php echo $form->textFieldControlGroup($model, 'passcode'); ?>
-<?php echo $form->textFieldControlGroup($model, 'passcode_repeat'); ?>
+<?php echo $form->passwordFieldControlGroup($model, 'passcode'); ?>
+<?php echo $form->passwordFieldControlGroup($model, 'passcode_repeat'); ?>
 </fieldset>
 
 <?php echo TbHtml::formActions(array(
