@@ -5,7 +5,7 @@
  * @date 04-21-2014
  */
 
-$this->pageTitle = Yii::app()->name . ' - Add Group Menu';
+$this->pageTitle = Yii::app()->name . ' - Update Group Menu';
 ?>
 
 <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -16,9 +16,9 @@ $this->pageTitle = Yii::app()->name . ' - Add Group Menu';
 )); ?>
 
 <fieldset>
-    <legend>Add Group Menu</legend>
+    <legend>Update Group Menu</legend>
     
-    <?php echo $form->textFieldControlGroup($model, 'group_name'); ?>
+    <?php echo $form->textFieldControlGroup($model, 'group_name', array('value'=>$data["menu_group_name"])); ?>
     
     <?php echo TbHtml::formActions(array(
             TbHtml::submitButton('Submit', array('color' => TbHtml::BUTTON_COLOR_PRIMARY)),

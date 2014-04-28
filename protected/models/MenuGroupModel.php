@@ -50,6 +50,17 @@ class MenuGroupModel extends CFormModel{
     }
     
     
+    public function getGroupMenuByID($id)
+    {
+        $connection = $this->_connection;
+        $sql = "SELECT * FROM menu_group WHERE menu_group_id = :menu_group_id AND Status = 1";
+        $command = $connection->createCommand($sql);
+        $command->bindParam(':menu_group_id', $id);
+        
+        return $command->queryRow();
+    }
+    
+    
     public function insertMenuGroup()
     {
         $conn = $this->_connection;
@@ -60,6 +71,39 @@ class MenuGroupModel extends CFormModel{
         {
             $query = "INSERT INTO menu_group (menu_group_name) VALUES (:menu_group_name)";
             $command = $conn->createCommand($query);
+            $command->bindParam(':menu_group_name', $this->group_name);
+            $result = $command->execute();
+            
+            if ($result > 0)
+            {
+                $trx->commit();
+                return true;
+            }
+            else
+            {
+                $trx->rollback();
+                return false;
+            }
+        }
+        catch (PDOException $e)
+        {
+            $trx->rollback();
+            return false;
+        }
+    }
+    
+    public function updateMenuGroup()
+    {
+        $conn = $this->_connection;
+        
+        $trx = $conn->beginTransaction();
+        
+        try
+        {
+            $query = "UPDATE menu_group SET menu_group_name = :menu_group_name
+                    WHERE menu_group_id = :menu_group_id";
+            $command = $conn->createCommand($query);
+            $command->bindParam(':menu_group_id', $this->group_id);
             $command->bindParam(':menu_group_name', $this->group_name);
             $result = $command->execute();
             

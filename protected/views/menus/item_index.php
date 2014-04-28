@@ -5,21 +5,21 @@
  * @date 04-21-2014
  */
 
-$this->pageTitle = Yii::app()->name . ' - Group Menus';
+$this->pageTitle = Yii::app()->name . ' - Item Menus';
 
 $this->widget('bootstrap.widgets.TbBreadcrumb', array(
     'links' => array(
         'Menu Management' => Yii::app()->createUrl('menus/index'),
-        'Groups',
+        'Items',
     ),
 ));
 ?>
 
-<?php echo TbHtml::linkButton('New Group Menu', array(
+<?php echo TbHtml::linkButton('New Item Menu', array(
         'size'=>  TbHtml::BUTTON_SIZE_LARGE,
         'color' => TbHtml::BUTTON_COLOR_WARNING,
         'icon' => 'icon-plus',
-        'url'=> Yii::app()->createUrl('menus/addGroup'),
+        'url'=> Yii::app()->createUrl('menus/addItem'),
         )
         
 ); ?>
@@ -30,14 +30,34 @@ $this->widget('bootstrap.widgets.TbBreadcrumb', array(
     'dataProvider' => $dataProvider,
     'columns' => array(
         array(
-            'name' => 'menu_group_id',
+            'name' => 'menu_item_id',
             'header' => '#',
             'htmlOptions' => array('style' => 'text-align:center'),
             'headerHtmlOptions' => array('style' => 'text-align:center'),
         ),
         array(
             'name' => 'menu_group_name',
-            'header' => 'Group Menu Name',
+            'header' => 'Group Name',
+            'htmlOptions' => array('style' => 'text-align:center'),
+            'headerHtmlOptions' => array('style' => 'text-align:center'),
+        ),
+        array(
+            'name' => 'menu_item_name',
+            'header' => 'Item Name',
+            'htmlOptions' => array('style' => 'text-align:center'),
+            'headerHtmlOptions' => array('style' => 'text-align:center'),
+        ),
+        array(
+            'name' => 'menu_item_price',
+            'header' => 'Item Price',
+            'htmlOptions' => array('style' => 'text-align:center'),
+            'headerHtmlOptions' => array('style' => 'text-align:center'),
+        ),
+        array(
+            'name' => 'menu_item_image_path',
+            'header' => 'Item Image',
+            'value'=>'TbHtml::image(Yii::app()->request->baseUrl."/".$data["menu_item_image_path"], "", array("style"=>"width:70px;height:70px;"))',
+            'type'=>'raw',
             'htmlOptions' => array('style' => 'text-align:center'),
             'headerHtmlOptions' => array('style' => 'text-align:center'),
         ),
@@ -55,7 +75,7 @@ $this->widget('bootstrap.widgets.TbBreadcrumb', array(
                     (
                         'label'=>'Update',
                         'icon'=>'icon-edit',
-                        'url'=>'Yii::app()->createUrl("/menus/updateGroup", array("id" =>$data["menu_group_id"]))',
+                        'url'=>'Yii::app()->createUrl("/menus/updateItem", array("id" =>$data["menu_item_id"]))',
                         'options' => array(
                             'class'=>"btn btn-small",
                         ),
