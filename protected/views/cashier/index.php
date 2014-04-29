@@ -24,12 +24,36 @@ $(document).ready(function(){
 	$("#1").css({'background-color' : '#006699'});
 	showLoader();
 	$("#content").load("index.php?r=cashier/itemMenuResults&page=1", hideLoader);
-	
+        
+        $('.multiple-items').slick({
+            autoplay: false, // Enables auto play of slides
+            accessibility: true, // Enables tabbing and arrow key navigation
+            cssEase: 'ease', // CSS3 easing
+            easing: 'linear', // animate() fallback easing
+            pauseOnHover: true, // Pauses autoplay on hover
+            autoplaySpeed: 3000, // Auto play change interval
+            dots: false, // Current slide indicator dots
+            draggable: true, // Enables mouse drag
+            arrows: true, // Next/Prev arrows
+            fade: false, // Enables fade
+            infinite: true, // Infinite looping
+            onBeforeChange: null, // Before slide change callback
+            onAfterChange: null, // After slide change callback
+            responsive: null, // Breakpoint triggered settings
+            slide: 'div', // Slide element query
+            slidesToShow: 1, // # of slides to show at a time
+            slidesTo: 3, // # of slides to scroll at a time
+            speed: 300, // Transition speed
+            swipe: true, // Enables touch swipe
+            touchMove: true, // Enables slide moving with touch
+            touchThreshold: 5 // Swipe distance threshold
+        });	
 });
 </script>
 <div id="LoadingImage" style="display: none;">
-<img src="css/loader.gif" alt="Please wait while processing" />
+    <img src="css/loader.gif" alt="Please wait while processing" />
 </div>
+
 <div id="header">
     <div id="logo" style="float: left;">
         <img src="images/logo.png" alt="chicboy"/>
@@ -57,8 +81,8 @@ $(document).ready(function(){
         </p>
         <p>
             DATE : <?php echo date('d F Y h:i A'); ?> <br />
-            Terminal : <?php echo ''; ?> <br /> 
-            Cashier :  <?php echo ''; ?> <br />
+            Terminal : <?php echo 'Terminal 1'; ?> <br /> 
+            Cashier :  <?php echo 'Juan Dela Cruz'; ?> <br />
         </p>
         <table id="tblReceiptInfo" style="text-align: right;margin-left: 60px;word-break: normal;">
             
@@ -136,8 +160,10 @@ $(document).ready(function(){
     </ul>
 </div>
 <div class="clear"></div>
-<div style="margin: 500px 0 0 400px; float: right; position: absolute;">
-    <h3>Menu Groups</h3>
+<div style="margin: 550px 0 0 400px; float: right; position: absolute;">
+<!--    <div> Slide  1 </div>
+    <div> Slide  2 </div>
+    <div> Slide  3 </div>-->
     <?php 
         foreach($menuGroupResult as $val){
             $menuGrpId = $val['menu_group_id'];
@@ -162,25 +188,35 @@ $(document).ready(function(){
         echo '&nbsp&nbsp&nbsp';
         echo TbHtml::button('CANCEL',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
                                          'size'=>  TbHtml::BUTTON_SIZE_LARGE,
-                                         'image'=>  TbHtml::IMAGE_TYPE_ROUNDED
+                                         'image'=>  TbHtml::IMAGE_TYPE_ROUNDED,
+                                         'onclick'=>'',
+                                         'data-toggle'=>'modal',
+                                         'data-target'=>'#modalCancel'
                                         )
                            );
         echo '&nbsp&nbsp&nbsp';
         echo TbHtml::button('HOLD',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
                                          'size'=>  TbHtml::BUTTON_SIZE_LARGE,
-                                         'image'=>  TbHtml::IMAGE_TYPE_ROUNDED
+                                         'image'=>  TbHtml::IMAGE_TYPE_ROUNDED,
+                                         'onclick'=>'',
+                                         'data-toggle'=>'modal',
+                                         'data-target'=>'#modalHold'
                                         )
                            );
         echo '&nbsp&nbsp&nbsp';
         echo TbHtml::button('REPRINT',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
                                          'size'=>  TbHtml::BUTTON_SIZE_LARGE,
-                                         'image'=>  TbHtml::IMAGE_TYPE_ROUNDED
+                                         'image'=>  TbHtml::IMAGE_TYPE_ROUNDED,
+                                         'onclick'=>'printReceipt(1);'
                                         )
                            );
         echo '&nbsp&nbsp&nbsp';
         echo TbHtml::button('SEARCH',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
                                          'size'=>  TbHtml::BUTTON_SIZE_LARGE,
-                                         'image'=>  TbHtml::IMAGE_TYPE_ROUNDED
+                                         'image'=>  TbHtml::IMAGE_TYPE_ROUNDED,
+                                         'onclick'=>'displayPendingInvoice();',
+                                         'data-toggle'=>'modal',
+                                         'data-target'=>'#modalSearch'
                                         )
                            );
         echo '&nbsp&nbsp&nbsp';

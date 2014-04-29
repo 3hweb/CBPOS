@@ -1,32 +1,6 @@
 /* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Contains the javascript used for cashier module
  */
-
-
-ajaxCall = function(a){
-    jQuery.ajax({
-        // The url must be appropriate for your configuration;
-        // this works with the default config of 1.1.11
-        url: 'index.php?r=cashier/ajaxProcessor',
-        type: "POST",
-        data: {
-            ajaxData: a
-        },  
-        error: function(xhr,tStatus,e){
-            if(!xhr){
-                alert(tStatus+"   "+e.message);
-            }else{
-                alert("else: "+e.message); // the great unknown
-            }
-        },
-        success: function(response){
-            $.each(response, function(a, b){
-               alert(b); 
-            });
-        }
-    });
-};
 
 displayMenu = function(itemName, price, id){
       $('#txtMenuItem').val(itemName);
@@ -36,17 +10,11 @@ displayMenu = function(itemName, price, id){
 };
 
 addToList = function(){
-    var a = 'et';
     $("#LoadingImage").show();
     jQuery.ajax({
-        // The url must be appropriate for your configuration;
-        // this works with the default config of 1.1.11
         url: 'index.php?r=cashier/addOrderToList',
         type: "POST",
-        data: $('#frmModalDialog').serialize()
-            //quantity: function(){ return $('#txtQuantity').val();}
-            
-        ,  
+        data: $('#frmModalDialog').serialize(),  
         dataType:'json',
         error: function(xhr,tStatus,e){
             $("#LoadingImage").hide();
@@ -90,11 +58,8 @@ addToList = function(){
                 $('#txtVatAmt').val(this.VatAmount);
                 
                 $('#lblReceipt').text(this.InvoiceNo);
-                $('#txtReceiptNo').val(this.InvoiceNo);
-                
-                
+                $('#txtReceiptNo').val(this.InvoiceNo); 
             });
-             
             $("#LoadingImage").hide();
         }
     });
@@ -102,15 +67,16 @@ addToList = function(){
 
 saveRecord = function(){
     jQuery.ajax({
-        // The url must be appropriate for your configuration;
-        // this works with the default config of 1.1.11
         url: 'index.php?r=cashier/saveRecord',
         type: "POST",
         data: {
             txtReceiptNo: function(){ return $('#txtReceiptNo').val();},
             txtTotalAmt: function(){return $('#txtTotalAmt').val();},
             txtSubTotal: function(){return $('#txtSubTotal').val();},
-            txtVatAmt: function(){return $('#txtVatAmt').val();}
+            txtVatAmt: function(){return $('#txtVatAmt').val();},
+            txtCashTendered: function(){return $('#txtCashTendered').val()},
+            paymentType: function(){return $('#txtTransPayment').val()},
+            dineType: function(){return $('#txtTransType').val()}
         },  
         dataType:'json',
         error: function(xhr,tStatus,e){
@@ -122,33 +88,34 @@ saveRecord = function(){
             }
         },
         success : function(data){
+            printReceipt(0);
             alert(data.message);
-            $('#tblReceiptInfo').html("");
-            $('#lblReceipt').text("");
-            $('#txtReceiptNo').val("");
-            $('#lblTotalAmt').text("");
-            $('#txtTotalAmt').val("");
-                
-            $('#lblSubTotal').text("");
-            $('#txtSubTotal').val("");
-                
-            $('#lblVatAmount').text("");
-            $('#txtVatAmount').val("");
-            $("#LoadingImage").hide();
+            clearTrans();
         }
     });
 };
 
 displayPaymentData = function(){
+    $("#txtCashTendered").val("");
+    $("#txtCashChange").val("");
+    
+    //Dine-In Type is selected default when saving the transaction
+    $('#dineinType').addClass('active');
+    $('#takeoutType').removeClass('active');
+    $('#deliverType').removeClass('active');
+    $('#bulkType').removeClass('active');
+    $("#txtTransType").val("DINE-IN");
+    
+    //Cash Type is selected default when saving the transaction
+    $('#cashType').addClass('active');
+    $('#cardType').removeClass('active');
+    $('#txtTransPayment').val("CASH");
+    
     if($('#txtReceiptNo').val() != ""){
         jQuery.ajax({
-            // The url must be appropriate for your configuration;
-            // this works with the default config of 1.1.11
             url: 'index.php?r=cashier/getPaymentTypes',
             type: "POST",
-            data: {
-                ajaxData: "test"
-            },  
+            data: {},  
             dataType:'json',
             error: function(xhr,tStatus,e){
                 $("#LoadingImage").hide();
@@ -174,7 +141,7 @@ displayPaymentData = function(){
     }
 };
 
-$('#txtCashTendered').live('keyup',function(){
+$('#txtCashTendered').live('keypress',function(){
     var cashTendered = $(this).val();
     var totalAmount = $('.txtTotalAmtSave').val();
     
@@ -207,4 +174,203 @@ commaFormat = function(num)
     for (var i = 0; i < Math.floor((num.length-(1+i))/3); i++)
         num = num.substring(0,num.length-(4*i+3))+','+ num.substring(num.length-(4*i+3));
     return (((sign)?'':'-') + num + '.' + cents);
+};
+
+identifyTransType = function(transType){
+    $("#txtTransType").val(transType);
+};
+
+identifyTransPayment = function(transPayment){
+    $("#txtTransPayment").val(transPayment);
+};
+
+cancelTransaction = function(){
+    jQuery.ajax({
+        url: 'index.php?r=cashier/modifyTransaction',
+        type: "POST",
+        data: {
+            txtReceiptNo: function(){ return $('#txtReceiptNo').val();},
+            isTransactionCancel: function(){ return 1;}
+        },  
+        dataType:'json',
+        error: function(xhr,tStatus,e){
+            $("#LoadingImage").hide();
+            if(!xhr){
+                alert(tStatus+"   "+e.message);
+            }else{
+                alert("else: "+e.message); // the great unknown
+            }
+        },
+        success : function(data){
+            alert(data.message);
+            clearTrans();
+        }
+    });
+};
+
+holdTransaction = function(){
+    jQuery.ajax({
+        url: 'index.php?r=cashier/modifyTransaction',
+        type: "POST",
+        data: {
+            txtReceiptNo: function(){ return $('#txtReceiptNo').val();},
+            isTransactionCancel: function(){ return 0;}
+        },  
+        dataType:'json',
+        error: function(xhr,tStatus,e){
+            $("#LoadingImage").hide();
+            if(!xhr){
+                alert(tStatus+"   "+e.message);
+            }else{
+                alert("else: "+e.message); // the great unknown
+            }
+        },
+        success : function(data){
+            alert(data.message);
+            clearTrans();
+        }
+    });
+};
+
+clearTrans = function(){
+    $('#tblReceiptInfo').html("");
+    $('#tblPendingTrans').html("");
+    $('#lblReceipt').text("");
+    $('#txtReceiptNo').val("");
+    $('#lblTotalAmt').text("");
+    $('#txtTotalAmt').val("");
+                
+    $('#lblSubTotal').text("");
+    $('#txtSubTotal').val("");
+                
+    $('#lblVatAmount').text("");
+    $('#txtVatAmount').val("");
+    $("#LoadingImage").hide();
+};
+
+displayPendingInvoice = function(){
+    $('#tblPendingTrans').html("");
+    jQuery.ajax({
+        url: 'index.php?r=cashier/getPendingInvoice',
+        type: "POST",
+        data: {},  
+        dataType:'json',
+        error: function(xhr,tStatus,e){
+            $("#LoadingImage").hide();
+            if(!xhr){
+                alert(tStatus+"   "+e.message);
+            }else{
+                alert("else: "+e.message); // the great unknown
+            }
+        },
+        success : function(data){
+            var tblRow = "<thead>"
+                            +"<tr>"
+                            +"<th>Invoice No.</th>"
+                            +"</tr>"
+                            +"</thead>";
+
+            $.each(data, function(i,user){      
+                tblRow +=
+                "<tbody>"
+                +"<tr>"
+                +"<td><a onclick='reloadTransaction("+this.InvoiceNo+");' \n\
+                         style='cursor:pointer;'>"+this.InvoiceNo+"</a></td>"
+                +"</tr>"
+                +"</tbody>";
+                
+                $('#tblPendingTrans').html(tblRow);
+            });
+            $("#LoadingImage").hide();
+        }
+    });
+};
+
+reloadTransaction = function(invoiceNo){
+    $("#LoadingImage").show();
+    $('#tblReceiptInfo').html("");
+    jQuery.ajax({
+        url: 'index.php?r=cashier/getPendingTransaction',
+        type: "POST",
+        data: {txtReceiptNo: function(){ return invoiceNo;}},  
+        dataType:'json',
+        error: function(xhr,tStatus,e){
+            $("#LoadingImage").hide();
+            if(!xhr){
+                alert(tStatus+"   "+e.message);
+            }else{
+                alert("else: "+e.message); // the great unknown
+            }
+        },
+        success : function(data){
+            var tblRow = "<thead>"
+                            +"<tr>"
+                            +"<th style='padding: 10px;width:30px;'>Item</th>"
+                            +"<th style='padding: 10px;'>Qty</th>"
+                            +"<th style='padding: 10px;'>Price</th>"
+                            +"<th style='padding: 10px;'>Amount</th>"
+                            +"</tr>"
+                            +"</thead>";
+
+            $.each(data, function(i,user){      
+                
+                tblRow +=
+                "<tbody>"
+                +"<tr>"
+                +"<td style='padding: 10px;'>"+this.MenuItemName+"</td>"
+                +"<td style='padding: 10px;'>"+this.Quantity+"</td>"
+                +"<td style='padding: 10px;'>"+this.MenuItemPrice+"</td>"
+                +"<td style='padding: 10px;'>"+this.Amount+"</td>"
+                +"</tr>"
+                +"</tbody>";
+                
+                $('#tblReceiptInfo').html(tblRow);
+                
+                $('#lblTotalAmt').text(this.TotalAmount);
+                $('#txtTotalAmt').val(this.TotalAmount);
+                
+                $('#lblSubTotal').text(this.SubTotalAmount);
+                $('#txtSubTotal').val(this.SubTotalAmount);
+                
+                $('#lblVatAmount').text(this.VatAmount);
+                $('#txtVatAmt').val(this.VatAmount);
+                
+                $('#lblReceipt').text(this.InvoiceNo);
+                $('#txtReceiptNo').val(this.InvoiceNo); 
+            });
+            
+            $("#LoadingImage").hide();
+            $("#btnSearchClose").trigger('click');
+        }
+    });
+};
+
+printReceipt = function(isReprint){
+    $.ajax({
+        url : 'index.php?r=cashier/printReceipt',
+        type : 'post',
+        data : {isReprint : function(){return isReprint;},
+                invoiceNo : function() {return $('#txtReceiptNo').val();}
+        },
+        dataType : 'html',
+        error: function(xhr,tStatus,e){
+            $("#LoadingImage").hide();
+            if(!xhr){
+                alert(tStatus+"   "+e.message);
+            }else{
+                alert("else: "+e.message); // the great unknown
+            }
+        },
+        success : function(data){
+              //alert(data);
+              
+            var qz = document.getElementById('qz');
+            qz.appendHtml(fixHtml(""+data+""));
+            qz.printHtml();
+        }
+    });
+};
+              
+fixHtml = function(html) {
+    return html.replace(/ /g, "&nbsp;").replace(/’/g, "'").replace(/&dash;/g, "-");
 };

@@ -29,7 +29,7 @@ class MenuGroupModel extends CFormModel{
         );
     }
     
-    public function getActiveMenuGrps(){
+    public static function getActiveMenuGrps(){
         $connection = Yii::app()->db;
         $sql = "SELECT * FROM menu_group WHERE Status = 1";
         $query = $connection->createCommand($sql);

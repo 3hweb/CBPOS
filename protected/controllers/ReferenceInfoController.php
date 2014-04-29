@@ -51,6 +51,34 @@ class ReferenceInfoController{
         }
     }
     
+    public static function getTransactionTypeId($transName){
+        switch($transName){
+            case 'DINE-IN':
+                return 1;
+                break;
+            case 'TAKEOUT':
+                return 2;
+                break;
+            case 'DELIVERY':
+                return 3;
+                break;
+            case 'BULK':
+                return 4;
+                break;
+        }
+    }
+    
+    public static function getPaymentTypeId($paymentTypeName){
+        switch ($paymentTypeName){
+            case 'CASH':
+                return 1;
+            break;
+            case 'CREDIT CARD':
+                return 2;
+            break;
+        }
+    }
+    
 }
 
 ?>
