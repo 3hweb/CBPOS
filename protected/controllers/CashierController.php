@@ -260,7 +260,7 @@ class CashierController extends Controller
         
         $htmlHeader = "<html><head></head><body>";
         
-        $htmlBodyHeader = '<div class="content" style="width: 30%;margin: 0 auto;">
+        $htmlBodyHeader = '<div class="content" style="width: 50%;margin: 0 auto;font-size:xx-small;">
                         <p align="center">'.str_replace('-', '&dash;', ReferenceInfoController::$NAME).'</p>
                         <p align="center">'.str_replace('-', '&dash;', ReferenceInfoController::$ADDRESS).'</p>
                         <p align="left">TIN: '.str_replace('-', '&dash;', ReferenceInfoController::$TIN).'</p>
@@ -270,7 +270,7 @@ class CashierController extends Controller
                         </div>';
        
         /** Transaction Details - Item List **/
-        $htmlBodyContentHeader = '<table style=\"text-align: right;\"><thead><tr>'.
+        $htmlBodyContentHeader = '<table style=\"text-align: right;font-size: small;font-size:xx-small;\"><thead><tr>'.
             '<td style=\"width: 20%\">Item</td><td>QTY</td><td>Price</td><td>Amount</td>'.
             '</tr></thead>';
         
@@ -296,7 +296,7 @@ class CashierController extends Controller
         
         /***************** Transaction Details - Total Part*******************/
         
-        $htmlBodyContentHeader2 = '<table style=\"text-align: right;\"><thead>'.
+        $htmlBodyContentHeader2 = '<table style=\"text-align: right;font-size:xx-small;\"><thead>'.
             '<tr><td>Total (VAT Inclusive)</td><td>'.$totalAmount.'</td></tr>'.
             '<tr><td>Subtotal (12% VAT) </td><td>'.$subTotalAmount.'</td></tr>'.       
             '<tr><td>VAT Amount</td><td>'.$vatAmount.'</td></tr>'.        
@@ -308,8 +308,9 @@ class CashierController extends Controller
         $htmlBodyContent2 = $htmlBodyContentHeader2.$htmlBodyContentInfo2.$htmlBodyContentFooter2;
         
         $htmlBodyFooter = '<hr/>
+                           <div style="font-size:xx-small;width: 50%;margin: 0 auto;">
                            <p>Receipt # : '.$invoiceNo.'</p>
-                           <p>This serves as an official receipt</p>';
+                           <p>This serves as an official receipt</p></div>';
         
         $htmlBody = $htmlBodyHeader."<hr/>".$htmlBodyContent."<hr />".$htmlBodyContent2.$htmlBodyFooter;
         
