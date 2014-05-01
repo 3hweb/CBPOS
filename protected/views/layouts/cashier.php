@@ -28,19 +28,7 @@
     
 <div class="container">
     <form method="post" id="frmModalDialog" action="#">
-        <?php
-             $this->renderPartial('widgetMenuDisplay');
-             
-             $this->renderPartial('widgetTransSave');
-             
-             $this->renderPartial('widgetTransCancel');
-             
-             $this->renderPartial('widgetTransHold');
-             
-             $this->renderPartial('widgetTransSearch');
-             
-             echo $content;
-        ?>
+        <?php echo $content; ?>
     </form>
 	<div class="clear"></div>
 </div><!-- page -->

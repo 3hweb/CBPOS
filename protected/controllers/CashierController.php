@@ -13,6 +13,7 @@ class CashierController extends Controller
         $menuGroupModel = new MenuGroupModel();
         $menuItemsModel = new MenuItemsModel();
         $referenceInfoController = new ReferenceInfoController();
+        $refDiscountsModel = new RefDiscountsModel();
         
         //Display Active Menu Group
         $menuGroupResult = $menuGroupModel->getActiveMenuGrps();
@@ -24,8 +25,11 @@ class CashierController extends Controller
         
         $referenceInfoController->getReceiptInfo();
         
+        $rdiscounts = $refDiscountsModel->getActiveDiscounts();
+        
         $this->render('index',array('pages'=>$pages,
-                                    'menuGroupResult'=>$menuGroupResult));
+                                    'menuGroupResult'=>$menuGroupResult,
+                                    'activeDiscounts'=>$rdiscounts));
     }
     
     public function actionAddOrderToList() {
