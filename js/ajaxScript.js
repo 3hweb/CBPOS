@@ -59,6 +59,14 @@ addToList = function(){
                 
                 $('#lblReceipt').text(this.InvoiceNo);
                 $('#txtReceiptNo').val(this.InvoiceNo); 
+                
+                $("#lblLessVat").text(this.VatExemptAmount);
+                $("#txtLessVat").val(this.VatExemptAmount);
+                
+                $("#lblDiscType").text(this.DiscountName);
+                
+                $("#lblDiscAmt").text(this.DiscountAmount);
+                $("#txtDiscAmt").val(this.DiscountAmount);
             });
             $("#LoadingImage").hide();
         }
@@ -75,8 +83,11 @@ saveRecord = function(){
             txtSubTotal: function(){return $('#txtSubTotal').val();},
             txtVatAmt: function(){return $('#txtVatAmt').val();},
             txtCashTendered: function(){return $('#txtCashTendered').val()},
+            txtCashChange: function(){return $("#txtCashChange").val()},
             paymentType: function(){return $('#txtTransPayment').val()},
-            dineType: function(){return $('#txtTransType').val()}
+            dineType: function(){return $('#txtTransType').val()},
+            txtDiscAmt: function(){ return $('#txtDiscAmt').val()},
+            txtTableNum: function(){return $('#txtTableNum').val()}
         },  
         dataType:'json',
         error: function(xhr,tStatus,e){
@@ -337,6 +348,14 @@ reloadTransaction = function(invoiceNo){
                 
                 $('#lblReceipt').text(this.InvoiceNo);
                 $('#txtReceiptNo').val(this.InvoiceNo); 
+                
+                $("#lblLessVat").text(this.VatExemptAmount);
+                $("#txtLessVat").val(this.VatExemptAmount);
+                
+                $("#lblDiscType").text(this.DiscountName);
+                
+                $("#lblDiscAmt").text(this.DiscountAmount);
+                $("#txtDiscAmt").val(this.DiscountAmount);
             });
             
             $("#LoadingImage").hide();
@@ -362,8 +381,6 @@ printReceipt = function(isReprint){
             }
         },
         success : function(data){
-              //alert(data);
-              
             var qz = document.getElementById('qz');
             qz.appendHtml(fixHtml(""+data+""));
             qz.printHtml();
@@ -372,5 +389,71 @@ printReceipt = function(isReprint){
 };
               
 fixHtml = function(html) {
-    return html.replace(/ /g, "&nbsp;").replace(/’/g, "'").replace(/&dash;/g, "-");
+    return html.replace(/ /g, "&nbsp;").replace(/ï¿½/g, "'").replace(/&dash;/g, "-");
+};
+
+displayAvailableDiscounts = function(){
+    var invoiceNo = $('#txtReceiptNo').val();
+    
+    if(invoiceNo == 0){
+        alert("Get Discounts: No active transaction.");
+        window.location.reload();
+    } else {
+        $.ajax({
+            url : 'index.php?r=cashier/getDiscounts',
+            type : 'post',
+            data : {
+                invoiceNo : function(){
+                    return invoiceNo;
+                }
+            },
+            dataType : 'json',
+            error: function(xhr,tStatus,e){
+                $("#LoadingImage").hide();
+                if(!xhr){
+                    alert(tStatus+"   "+e.message);
+                }else{
+                    alert("else: "+e.message); // the great unknown
+                }
+            },
+            success : function(data){
+                var discountOptions;
+                $("#applyDiscount").empty();
+                $.each(data, function(x, y){
+                    discountOptions = "<a class='btn btn-primary' href='#' onclick='identifyDiscountId("+this.discount_id+")'>"+this.discount_name+"</a>";
+                    $("#applyDiscount").append(discountOptions);
+                });
+                $("#applyDiscount").append("</div>");
+            }
+        });   
+    }
+};
+
+identifyDiscountId = function(discountId){
+    $("#txtDiscount").val(discountId);
+}
+
+applyDiscount = function(){
+    var invoiceNo = $('#txtReceiptNo').val();
+    $.ajax({
+        url : 'index.php?r=cashier/applyDiscount',
+        type : 'post',
+        data : {
+            invoiceNo : function(){ return invoiceNo;},
+            discountId : function(){return $("#txtDiscount").val(); }
+        },
+        dataType : 'json',
+        error: function(xhr,tStatus,e){
+            $("#LoadingImage").hide();
+            if(!xhr){
+                alert(tStatus+"   "+e.message);
+            }else{
+                alert("else: "+e.message); // the great unknown
+            }
+        },
+        success : function(data){
+            alert(data);
+            reloadTransaction(invoiceNo);
+        }
+    });
 };

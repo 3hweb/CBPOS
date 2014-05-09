@@ -26,6 +26,11 @@ $this->widget('bootstrap.widgets.TbModal', array(
                                         array('id'=>'txtCashChange','readonly'=>true)).'
                             </td>
                         </tr>
+                        <tr>
+                            <td>Table Number</td>
+                            <td>'.TbHtml::textField('txtTableNum',"",
+                                        array('id'=>'txtTableNum')).'</td>
+                        </tr>
                      </table>
                      <div style="padding-top: 10px;">
                         <p align="left">Type of Payment</p>

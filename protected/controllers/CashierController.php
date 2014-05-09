@@ -13,7 +13,6 @@ class CashierController extends Controller
         $menuGroupModel = new MenuGroupModel();
         $menuItemsModel = new MenuItemsModel();
         $referenceInfoController = new ReferenceInfoController();
-        $refDiscountsModel = new RefDiscountsModel();
         
         //Display Active Menu Group
         $menuGroupResult = $menuGroupModel->getActiveMenuGrps();
@@ -25,11 +24,8 @@ class CashierController extends Controller
         
         $referenceInfoController->getReceiptInfo();
         
-        $rdiscounts = $refDiscountsModel->getActiveDiscounts();
-        
         $this->render('index',array('pages'=>$pages,
-                                    'menuGroupResult'=>$menuGroupResult,
-                                    'activeDiscounts'=>$rdiscounts));
+                                    'menuGroupResult'=>$menuGroupResult));
     }
     
     public function actionAddOrderToList() {
@@ -37,13 +33,12 @@ class CashierController extends Controller
         $orderDetailsModel = new OrderDetailsModel();
         $orderSummaryModel = new OrderSummaryModel();
         $referenceInfoController = new ReferenceInfoController(); //required class
-        
         $terminalId = 1;
         $totalQuantity = 0;
         $totalAmount = 0;
         $taxAmount = 0;
         $netAmount = 0;
-        $discountId = 0;
+        $discountId = null;
         $paymentTypeId = 0;
         $isReprinted = 0;
         $dineType = 0;
@@ -58,7 +53,7 @@ class CashierController extends Controller
         } else {
             $invoiceNo = mt_rand().$menuItemId;
         }
-        $discountId = 1;
+        
         $orderSummaryId = $commonTransactionModel->recordTransaction($invoiceNo, $terminalId, 
                 $menuItemId, $totalQuantity, $totalAmount, $taxAmount, $netAmount, 
                 $discountId, $paymentTypeId, $isReprinted, $dineType, $createdByAid, 
@@ -71,48 +66,14 @@ class CashierController extends Controller
             
         }*/
         
-        $orderDetailsResult = array();
         $orderSummary = $orderSummaryModel->getInvoiceNo($orderSummaryId);
         $invoiceNo = $orderSummary['invoice_no'];
         
-        $orderDetails = $orderDetailsModel->getTransactionDetails($orderSummaryId);
-        $subTotalAmount = 0;
-        $totalAmount = 0;
-        $vatAmount = 0;
-        foreach ($orderDetails as $val){
-            $subTotalAmount = $subTotalAmount + (float)$val['amount']; //get the sub total amount
-            
-            array_push($orderDetailsResult, array("MenuItemName"=>$val['menu_item_name'],
-                "MenuItemPrice"=>$val['menu_item_price'], "Quantity"=>$val['quantity'],
-                "Amount"=>  number_format($val['amount'], 2,'.',','),
-                "InvoiceNo"=>$invoiceNo,"SubTotalAmount"=>  number_format($subTotalAmount, 2,'.',','),
-                "TotalAmount"=>$totalAmount,"VatAmount"=>$vatAmount));
-        }
-                           
-        //$subTotalAmount = $orderDetailsResult[1]['SubTotalAmount'];
-
-        $vatAmount = $subTotalAmount * ReferenceInfoController::$TAX_WITHHELD;
-
-        $totalAmount = $subTotalAmount + $vatAmount; //amount inclusive with 
-
-        $i = 0;
-        while($i < count($orderDetailsResult)){
-            
-            $orderDetailsResult[$i]['VatAmount'] = number_format($vatAmount, 2, '.', ',');
-            $orderDetailsResult[$i]['TotalAmount'] = number_format($totalAmount, 2, '.',',');
-            
-            $i++;
-        }
+        $orderDetailsResult = $this->searchTransaction($invoiceNo);
         
         // output some JSON instead of the usual text/html
         header('Content-Type: application/json; charset="UTF-8"');
         echo CJSON::encode($orderDetailsResult);
-    }
-    
-    public function actionAjaxSetMenuDialog(){
-        
-        header('Content-Type: application/json; charset="UTF-8"');
-        echo CJSON::encode(array('output' => 'good to go'));
     }
     
     public function actionItemMenuResults(){
@@ -149,6 +110,10 @@ class CashierController extends Controller
         $netAmount = Utilities::removeComma($_POST['txtSubTotal']);
         $transTypeName = $_POST['dineType'];
         $paymentTypeName = $_POST['paymentType'];
+        $discountAmount = Utilities::removeComma($_POST['txtDiscAmt']);
+        $cashTenderedAmount = Utilities::removeComma($_POST['txtCashTendered']);
+        $cashChangeAmount = Utilities::removeComma($_POST['txtCashChange']);
+        $txtTableNum = $_POST['txtTableNum'];
         
         $orderSummaryResult = $orderSummaryModel->getSummaryIdByInvoiceNo($invoiceNo);
         $orderSummaryId = $orderSummaryResult['order_summary_id'];
@@ -161,7 +126,8 @@ class CashierController extends Controller
         
         $isSaveSuccess = $orderSummaryModel->updateTransactionSRecord($status, 
                 $orderSummaryId, $totalAmount, $taxAmount, $netAmount, $dineTypeId, 
-                $paymentTypeId);
+                $paymentTypeId, $discountAmount, $cashChangeAmount, $cashTenderedAmount,
+                $txtTableNum);
         
         if($isSaveSuccess){
             $msg = "Transaction Successful";
@@ -215,41 +181,11 @@ class CashierController extends Controller
     }
     
     public function actionGetPendingTransaction(){
-        $orderSummaryModel = new OrderSummaryModel();
-        
+        $referenceInfoController = new ReferenceInfoController(); //required class
         if(isset($_POST['txtReceiptNo']) && $_POST['txtReceiptNo'] != ""){
             $invoiceNo = $_POST['txtReceiptNo'];
             
-            $orderSummaryId = $orderSummaryModel->getSummaryIdByInvoiceNo($invoiceNo);
-            
-            $pendingTransResult = $orderSummaryModel->getPendingTransactions($orderSummaryId['order_summary_id']);
-            
-            $subTotalAmount = 0;
-            $totalAmount = 0;
-            $vatAmount = 0;
-            $orderDetailsResult = array();
-            foreach ($pendingTransResult as $val) {
-                $subTotalAmount = $subTotalAmount + (float) $val['amount']; //get the sub total amount
-
-                array_push($orderDetailsResult, array("MenuItemName" => $val['menu_item_name'],
-                    "MenuItemPrice" => $val['menu_item_price'], "Quantity" => $val['quantity'],
-                    "Amount" => number_format($val['amount'], 2, '.', ','),
-                    "InvoiceNo" => $invoiceNo, "SubTotalAmount" => number_format($subTotalAmount, 2, '.', ','),
-                    "TotalAmount" => $totalAmount, "VatAmount" => $vatAmount));
-            }
-            
-            $vatAmount = $subTotalAmount * ReferenceInfoController::$TAX_WITHHELD;
-
-            $totalAmount = $subTotalAmount + $vatAmount; //amount inclusive with 
-
-            $i = 0;
-            while ($i < count($orderDetailsResult)) {
-
-                $orderDetailsResult[$i]['VatAmount'] = number_format($vatAmount, 2, '.', ',');
-                $orderDetailsResult[$i]['TotalAmount'] = number_format($totalAmount, 2, '.', ',');
-
-                $i++;
-            }
+            $orderDetailsResult = $this->searchTransaction($invoiceNo);
         }
         
         header('Content-Type: application/json; charset="UTF-8"');
@@ -261,10 +197,13 @@ class CashierController extends Controller
         
         $isReprint = $_POST['isReprint'];
         $invoiceNo = $_POST['invoiceNo'];
-        
+        $transDetailsResult = $this->searchTransaction($invoiceNo);
         $htmlHeader = "<html><head></head><body>";
         
-        $htmlBodyHeader = '<div class="content" style="width: 50%;margin: 0 auto;font-size:xx-small;">
+        $htmlBodyHeader = '<p align="left" style=\"font-size:large;\">'.
+                            ReferenceInfoController::getTransactionTypeName($transDetailsResult[0]['TransactionType']).
+                            ' - '.$transDetailsResult[0]['TableNo'].'</p>
+                        <div class="content" style="width: 100%;margin: 0 auto;font-size:xx-small;" align="center">
                         <p align="center">'.str_replace('-', '&dash;', ReferenceInfoController::$NAME).'</p>
                         <p align="center">'.str_replace('-', '&dash;', ReferenceInfoController::$ADDRESS).'</p>
                         <p align="left">TIN: '.str_replace('-', '&dash;', ReferenceInfoController::$TIN).'</p>
@@ -278,7 +217,7 @@ class CashierController extends Controller
             '<td style=\"width: 20%\">Item</td><td>QTY</td><td>Price</td><td>Amount</td>'.
             '</tr></thead>';
         
-        $transDetailsResult = $this->searchTransaction($invoiceNo);
+        //$transDetailsResult = $this->searchTransaction($invoiceNo);
         
         $htmlBodyContentInfo = '<tbody>';
         $subTotalAmount = 0;
@@ -286,6 +225,11 @@ class CashierController extends Controller
             $subTotalAmount = $val['SubTotalAmount']; //get the sub total amount
             $vatAmount = $val['VatAmount'];
             $totalAmount = $val['TotalAmount'];
+            $vatExemptAmount = $val['VatExemptAmount'];
+            $discountAmount = $val['DiscountAmount'];
+            $discountName = $val['DiscountName'];
+            $cashTenderedAmt = $val['CashTendered'];
+            $cashChangedAmt = $val['CashChanged'];
             $htmlBodyContentInfo .= '<tr>'.
                                         '<td style=\"width: 20px;\">'.$val['MenuItemName'].'</td>'.
                                         '<td>'.$val['Quantity'].'</td>'.
@@ -303,7 +247,10 @@ class CashierController extends Controller
         $htmlBodyContentHeader2 = '<table style=\"text-align: right;font-size:xx-small;\"><thead>'.
             '<tr><td>Total (VAT Inclusive)</td><td>'.$totalAmount.'</td></tr>'.
             '<tr><td>Subtotal (12% VAT) </td><td>'.$subTotalAmount.'</td></tr>'.       
-            '<tr><td>VAT Amount</td><td>'.$vatAmount.'</td></tr>'.        
+            '<tr><td>VAT Amount</td><td>'.$vatAmount.'</td></tr>'.
+            '<tr><td>Less 12% VAT</td><td>'.$vatExemptAmount.'</td></tr>'.
+            '<tr><td>Less: <label style="font-size: xxx-small;">'.$discountName.'</label></td><td>'.$discountAmount.'</td></tr>'.
+            '<tr><td>Amount Due</td><td>'.$totalAmount.'</td></tr>'.        
             '</thead>';
         
         $htmlBodyContentInfo2 = '<tbody>';
@@ -311,12 +258,17 @@ class CashierController extends Controller
         
         $htmlBodyContent2 = $htmlBodyContentHeader2.$htmlBodyContentInfo2.$htmlBodyContentFooter2;
         
+        $htmlBodyContent3 = '<table style=\"text-align: right;font-size:xx-small;\"><thead>'.
+                            '<tr><td>Cash Tendered: </td> <td>'.$cashTenderedAmt.'</td>'.
+                            '<tr><td>Cash Changed: </td> <td>'.$cashChangedAmt.'</td>'.
+                            '</tr>';
+        
         $htmlBodyFooter = '<hr/>
                            <div style="font-size:xx-small;width: 50%;margin: 0 auto;">
                            <p>Receipt # : '.$invoiceNo.'</p>
                            <p>This serves as an official receipt</p></div>';
         
-        $htmlBody = $htmlBodyHeader."<hr/>".$htmlBodyContent."<hr />".$htmlBodyContent2.$htmlBodyFooter;
+        $htmlBody = $htmlBodyHeader."<hr/>".$htmlBodyContent."<hr />".$htmlBodyContent2."<hr />".$htmlBodyContent3.$htmlBodyFooter;
         
         $htmlFooter = '</body></html>';
         
@@ -336,30 +288,81 @@ class CashierController extends Controller
         $totalAmount = 0;
         $vatAmount = 0;
         $orderDetailsResult = array();
+        $discountId = null;
         foreach ($pendingTransResult as $val) {
             $subTotalAmount = $subTotalAmount + (float) $val['amount']; //get the sub total amount
-
+            $discountId = $val['discount_id'];
+            $discountValue = $val['discount_value'];
+            
             array_push($orderDetailsResult, array("MenuItemName" => $val['menu_item_name'],
                 "MenuItemPrice" => $val['menu_item_price'], "Quantity" => $val['quantity'],
                 "Amount" => number_format($val['amount'], 2, '.', ','),
                 "InvoiceNo" => $invoiceNo, "SubTotalAmount" => number_format($subTotalAmount, 2, '.', ','),
-                "TotalAmount" => $totalAmount, "VatAmount" => $vatAmount));
+                "TotalAmount" => $totalAmount, "VatAmount" => $vatAmount,
+                "DiscountName"=>$val['discount_name'],"CashTendered"=>$val['cash_tendered'],
+                "CashChanged"=>$val['cash_changed'],"TableNo"=>$val['table_no'],"TransactionType"=>$val['dine_type']));
         }
         
-        $vatAmount = $subTotalAmount * ReferenceInfoController::$TAX_WITHHELD;
-
-        $totalAmount = $subTotalAmount + $vatAmount; //amount inclusive with 
+        $vatExemptAmt = 0;
+        $discountAmount = 0;
+        if(is_null($discountId)){
+            $vatAmount = $subTotalAmount * ReferenceInfoController::$TAX_WITHHELD;
+            $totalAmount = $subTotalAmount + $vatAmount; //amount inclusive with 
+        } else {
+            $vatExemptAmt = $subTotalAmount / (float)ReferenceInfoController::$TAX_EXEMPT;
+            $discountAmount = $vatExemptAmt * $discountValue;
+            $totalAmount = $subTotalAmount - $discountAmount; 
+        }
 
         $i = 0;
         while($i < count($orderDetailsResult)){
             
             $orderDetailsResult[$i]['VatAmount'] = number_format($vatAmount, 2, '.', ',');
             $orderDetailsResult[$i]['TotalAmount'] = number_format($totalAmount, 2, '.',',');
+            $orderDetailsResult[$i]['VatExemptAmount'] = number_format($vatExemptAmt, 2, '.',',');
+            $orderDetailsResult[$i]['DiscountAmount'] = number_format($discountAmount, 2, '.', ',');
             
             $i++;
         }
         
         return $orderDetailsResult;
+    }
+    
+    public function actionGetDiscounts(){    
+        if(isset($_POST['invoiceNo']) && strlen($_POST['invoiceNo']) > 0){
+            $invoiceNo = $_POST['invoiceNo'];
+            $refDiscountsModel = new RefDiscountsModel();
+            $rdiscounts = $refDiscountsModel->getActiveDiscounts();
+
+            header('Content-Type: application/html; charset="UTF-8"');
+
+            echo CJSON::encode($rdiscounts);
+        } else {
+            header('Content-Type: application/html; charset="UTF-8"');
+        
+            echo CJSON::encode("Get Discounts: No active transaction.");
+        }
+    }
+    
+    public function actionApplyDiscount(){
+        $orderSummaryModel = new OrderSummaryModel();
+        
+        $invoiceNo = $_POST['invoiceNo'];
+        $discountId = $_POST['discountId'];
+        
+        $orderSummaryResult = $orderSummaryModel->getSummaryIdByInvoiceNo($invoiceNo);
+        $orderSummaryId = $orderSummaryResult['order_summary_id'];
+        
+        $isDiscountApplied = $orderSummaryModel->updateDiscount($discountId, $orderSummaryId);
+        
+        if($isDiscountApplied){
+            $msg = "ApplyDiscount: Successfully Applied";
+        } else {
+            $msg = "ApplyDiscount: Failed to apply the discount. Please try again.";
+        }
+        
+        header('Content-Type: application/html; charset="UTF-8"');
+        echo CJSON::encode($msg);
     }
 }
 ?>

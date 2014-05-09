@@ -39,7 +39,7 @@ $(document).ready(function(){
 
     $this->renderPartial('widgetTransSearch');
     
-    $this->renderPartial('widgetDiscount',array('activeDiscounts'=>$activeDiscounts));
+    $this->renderPartial('widgetDiscount');
 ?>
 
 <div id="LoadingImage" style="display: none;">

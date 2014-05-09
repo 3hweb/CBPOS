@@ -17,13 +17,6 @@
     <hr size="20%"/>
     <table style="text-align: right;margin-left: 70px;word-break: normal;">
         <tr>
-            <td>Total (VAT Inclusive)</td>
-            <td style='padding-left: 50px;'>
-                <label id="lblTotalAmt"></label>
-                <?php echo TbHtml::hiddenField("txtTotalAmt"); ?>
-            </td>
-        </tr>
-        <tr>
             <td>Subtotal (12% VAT)</td>
             <td style='padding-left: 50px;'>
                 <label id="lblSubTotal"></label>
@@ -35,6 +28,27 @@
             <td style='padding-left: 50px;'>
                 <label id="lblVatAmount"></label>
                 <?php echo TbHtml::hiddenField("txtVatAmt"); ?>
+            </td>
+        </tr>
+        <tr>
+            <td>Less 12% VAT</td>
+            <td style='padding-left: 50px;'>
+                <label id="lblLessVat"></label>
+                <?php echo TbHtml::hiddenField("txtLessVat"); ?>
+            </td>
+        </tr>
+        <tr>
+            <td> Less: <label id="lblDiscType"></label></td>
+            <td style='padding-left: 50px;'>
+                <label id="lblDiscAmt"></label>
+                <?php echo TbHtml::hiddenField("txtDiscAmt"); ?>
+            </td>
+        </tr>
+        <tr>
+            <td>Amount Due</td>
+            <td style='padding-left: 50px;'>
+                <label id="lblTotalAmt"></label>
+                <?php echo TbHtml::hiddenField("txtTotalAmt"); ?>
             </td>
         </tr>
     </table>

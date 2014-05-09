@@ -45,7 +45,7 @@
     echo TbHtml::button('APPLY DISCOUNT',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
                                      'size'=>  TbHtml::BUTTON_SIZE_LARGE,
                                      'image'=>  TbHtml::IMAGE_TYPE_ROUNDED,
-                                     'onclick'=>'',
+                                     'onclick'=>'displayAvailableDiscounts()',
                                      'data-toggle'=>'modal',
                                      'data-target'=>'#modalApplyDiscount'
                                     )

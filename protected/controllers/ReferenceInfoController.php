@@ -12,6 +12,7 @@
  */
 class ReferenceInfoController{
     static $TAX_WITHHELD;
+    static $TAX_EXEMPT;
     static $NAME;
     static $ADDRESS;
     static $TIN;
@@ -44,6 +45,9 @@ class ReferenceInfoController{
                 case 'PERMIT_NO':
                     self::$PERMIT_NO = $val['variable_value'];
                     break;
+                case 'TAX_EXEMPT':
+                    self::$TAX_EXEMPT = $val['variable_value'];
+                    break;
                 default:
                     echo 'INVALID Receipt Info';
                     break;
@@ -64,6 +68,23 @@ class ReferenceInfoController{
                 break;
             case 'BULK':
                 return 4;
+                break;
+        }
+    }
+    
+    public static function getTransactionTypeName($transId){
+        switch($transId){
+            case 1: 
+                return 'DINE-IN';
+                break;
+            case 2:
+                return 'TAKEOUT';
+                break;
+            case 3:
+                return 'DELIVERY';
+                break;
+            case 4:
+                return 'BULK';
                 break;
         }
     }

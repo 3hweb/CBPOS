@@ -26,10 +26,13 @@ class OrderSummaryModel extends CFormModel{
      * @return type
      */
     public function updateTransactionSRecord($status, $orderSummaryId, $totalAmt, 
-            $taxAmt, $netAmt, $dineType, $paymentTypeId){
+            $taxAmt, $netAmt, $dineType, $paymentTypeId,$discountAmt, $cashChangeAmount, 
+            $cashTenderedAmount, $txtTableNum){
         $sql = "UPDATE order_summary SET Status = :status, total_amount = :total_amount,
                 tax_amount = :tax_amount, net_amount = :net_amount, dine_type = :dine_type,
-                payment_type_id = :payment_type_id
+                payment_type_id = :payment_type_id, discount_amount = :discount_amount,
+                cash_tendered = :cash_tendered, cash_changed = :cash_changed, 
+                table_no = :table_no
                 WHERE order_summary_id = :order_summary_id";
         $command = $this->_connection->createCommand($sql);
         $command->bindValues(array(":status"=>$status,
@@ -38,7 +41,11 @@ class OrderSummaryModel extends CFormModel{
                                    ":tax_amount"=>$taxAmt,
                                    ":net_amount"=>$netAmt,
                                    ":dine_type"=>$dineType,
-                                   ":payment_type_id"=>$paymentTypeId));
+                                   ":payment_type_id"=>$paymentTypeId,
+                                   ":discount_amount"=>$discountAmt,
+                                   ":cash_tendered"=>$cashTenderedAmount,
+                                   ":cash_changed"=>$cashChangeAmount,
+                                   ":table_no"=>$txtTableNum));
                                    
         return $command->execute();
     }
@@ -73,16 +80,28 @@ class OrderSummaryModel extends CFormModel{
     }
     
     public function getPendingTransactions($orderSummaryId){
-        $sql = "SELECT mi.menu_item_name, mi.menu_item_price, SUM(od.quantity) AS quantity, 
-                SUM(od.amount) AS amount
+        $sql = "SELECT os.discount_id, mi.menu_item_name, mi.menu_item_price, 
+                SUM(od.quantity) AS quantity, SUM(od.amount) AS amount, 
+                rd.discount_name, rd.discount_value, os.cash_tendered, os.cash_changed,
+                os.table_no, os.dine_type
                 FROM order_summary os
                 INNER JOIN order_details od ON od.order_summary_id = os.order_summary_id
                 INNER JOIN menu_items mi ON od.menu_item_id = mi.menu_item_id
+                LEFT JOIN ref_discounts rd ON os.discount_id = rd.discount_id
                 WHERE os.order_summary_id = :order_summary_id
                 GROUP BY mi.menu_item_id";
         $command = $this->_connection->createCommand($sql);
         $command->bindParam(":order_summary_id", $orderSummaryId);
         return $command->queryAll();
+    }
+    
+    public function updateDiscount($discountId, $orderSummaryId){
+        $sql = "UPDATE order_summary SET discount_id = :discount_id 
+                WHERE order_summary_id = :order_summary_id";
+        $command = $this->_connection->createCommand($sql);
+        $command->bindValues(array(':discount_id'=>$discountId,
+                                   ':order_summary_id'=>$orderSummaryId));
+        return $command->execute();
     }
 }
 
