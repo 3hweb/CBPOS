@@ -6,7 +6,8 @@
 	<meta name="language" content="en" />
         <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/css.css" />
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
-        
+        <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/tinycarousel.css" type="text/css" media="screen"/>
+
 	<?php 
             Yii::app()->bootstrap->register(); 
             // Include the client scripts
@@ -14,6 +15,8 @@
 
             $cs = Yii::app()->getClientScript();
             $cs->registerScriptFile($baseUrl.'/js/ajaxScript.js');
+            //$cs->registerScriptFile($baseUrl.'/js/jquery.min.js');
+            $cs->registerScriptFile($baseUrl.'/js/jquery.tinycarousel.js')
         ?>
         
         <applet id="qz" name="QZ Print Plugin" code="qz.PrintApplet.class" archive="<?php echo Yii::app()->request->baseUrl; ?>/js/qz-print.jar" width="1" height="1">

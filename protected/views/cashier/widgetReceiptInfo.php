@@ -2,22 +2,26 @@
     <p style="text-align: center;">
         <?php echo ReferenceInfoController::$NAME; ?>
         <br />
-        <?php echo ReferenceInfoController::$ADDRESS; ?>
+        <?php echo ReferenceInfoController::$ADDRESS1; ?>
+        <br />
+        <?php echo ReferenceInfoController::$ADDRESS2; ?>
         <br />
         TIN: <?php echo ReferenceInfoController::$TIN; ?>
+        <br />
+        EMAIL: <?php echo ReferenceInfoController::$EMAIL; ?>
     </p>
     <p>
         DATE : <?php echo date('d F Y h:i A'); ?> <br />
         Terminal : <?php echo 'Terminal 1'; ?> <br /> 
-        Cashier :  <?php echo 'Juan Dela Cruz'; ?> <br />
+        Cashier :  <?php echo $cashierName; ?> <br />
     </p>
-    <table id="tblReceiptInfo" style="text-align: right;margin-left: 60px;word-break: normal;">
+    <table id="tblReceiptInfo" style="text-align: center;margin-left: 65px;word-break: normal;">
 
     </table>
     <hr size="20%"/>
     <table style="text-align: right;margin-left: 70px;word-break: normal;">
         <tr>
-            <td>Subtotal (12% VAT)</td>
+            <td>Subtotal (12% VAT Inclusive)</td>
             <td style='padding-left: 50px;'>
                 <label id="lblSubTotal"></label>
                 <?php echo TbHtml::hiddenField("txtSubTotal"); ?>
@@ -30,15 +34,15 @@
                 <?php echo TbHtml::hiddenField("txtVatAmt"); ?>
             </td>
         </tr>
-        <tr>
+<!--        <tr>
             <td>Less 12% VAT</td>
             <td style='padding-left: 50px;'>
                 <label id="lblLessVat"></label>
                 <?php echo TbHtml::hiddenField("txtLessVat"); ?>
             </td>
-        </tr>
+        </tr>-->
         <tr>
-            <td> Less: <label id="lblDiscType"></label></td>
+            <td>Discount <label id="lblDiscType"></label></td>
             <td style='padding-left: 50px;'>
                 <label id="lblDiscAmt"></label>
                 <?php echo TbHtml::hiddenField("txtDiscAmt"); ?>
@@ -62,7 +66,7 @@
             </td>
         </tr>
         <tr>
-            <td>Cash Changed</td>
+            <td>Cash Change</td>
             <td>
                 <label id="lblCashChanged"></label>
                 <?php echo TbHtml::hiddenField("txtCashChanged"); ?>

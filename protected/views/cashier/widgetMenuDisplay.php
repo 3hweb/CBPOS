@@ -19,6 +19,10 @@ $this->widget('bootstrap.widgets.TbModal', array(
                                     <td>Quantity</td>
                                     <td>' . TbHtml::textField('txtQuantity', "", array('id' => 'txtQuantity')) . '</td>
                                 </tr>
+                                <tr>
+                                    <td>Item Note</td>
+                                    <td>'.TbHtml::textField('txtItemNote', "",array('id'=>'txtItemNote')).'</td>
+                                </tr>
                                 ' . TbHtml::hiddenField('txtMenuId', "") . '
                              </table>',
     'footer' => array(

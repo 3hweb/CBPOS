@@ -25,13 +25,13 @@
                                      'data-target'=>'#modalHold'
                                     )
                        );
-    echo '&nbsp&nbsp&nbsp';
-    echo TbHtml::button('REPRINT',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
-                                     'size'=>  TbHtml::BUTTON_SIZE_LARGE,
-                                     'image'=>  TbHtml::IMAGE_TYPE_ROUNDED,
-                                     'onclick'=>'printReceipt(1);'
-                                    )
-                       );
+//    echo '&nbsp&nbsp&nbsp';
+//    echo TbHtml::button('REPRINT',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
+//                                     'size'=>  TbHtml::BUTTON_SIZE_LARGE,
+//                                     'image'=>  TbHtml::IMAGE_TYPE_ROUNDED,
+//                                     'onclick'=>'printReceipt(1);'
+//                                    )
+//                       );
     echo '&nbsp&nbsp&nbsp';
     echo TbHtml::button('SEARCH',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
                                      'size'=>  TbHtml::BUTTON_SIZE_LARGE,
@@ -48,6 +48,14 @@
                                      'onclick'=>'displayAvailableDiscounts()',
                                      'data-toggle'=>'modal',
                                      'data-target'=>'#modalApplyDiscount'
+                                    )
+                       );
+    echo '&nbsp&nbsp&nbsp';
+    
+    echo TbHtml::linkButton('LOGOUT',array('color'=>  TbHtml::BUTTON_COLOR_PRIMARY, 
+                                     'size'=>  TbHtml::BUTTON_SIZE_LARGE,
+                                     'image'=>  TbHtml::IMAGE_TYPE_ROUNDED,
+                                     'url'=>array('site/logout')
                                     )
                        );
     echo '&nbsp&nbsp&nbsp';

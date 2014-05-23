@@ -44,6 +44,7 @@ addToList = function(){
                 +"<td style='padding: 10px;'>"+this.MenuItemPrice+"</td>"
                 +"<td style='padding: 10px;'>"+this.Amount+"</td>"
                 +"</tr>"
+                +"<tr><th colspan=4><label style='font-style: italic;width: 120px;font-size: 10px;'>"+this.ItemNote+"</label></th></tr>"
                 +"</tbody>";
                 
                 $('#tblReceiptInfo').html(tblRow);
@@ -65,7 +66,7 @@ addToList = function(){
                 
                 $("#lblDiscType").text(this.DiscountName);
                 
-                $("#lblDiscAmt").text(this.DiscountAmount);
+                $("#lblDiscAmt").text("("+this.DiscountAmount+")");
                 $("#txtDiscAmt").val(this.DiscountAmount);
             });
             $("#LoadingImage").hide();
@@ -99,7 +100,10 @@ saveRecord = function(){
             }
         },
         success : function(data){
+            //Call the print receipt function three times
             printReceipt(0);
+           // printReceipt(0); 
+           // printReceipt(0); 
             alert(data.message);
             clearTrans();
         }
@@ -256,6 +260,15 @@ clearTrans = function(){
                 
     $('#lblVatAmount').text("");
     $('#txtVatAmount').val("");
+    
+    $('#lblLessVat').text("");
+    $('#txtLessVat').val("");
+    
+    $('#lblDiscType').text("");
+    
+    $('#lblDiscAmt').text("");
+    $('#txtDiscAmt').val("");
+    
     $("#LoadingImage").hide();
 };
 

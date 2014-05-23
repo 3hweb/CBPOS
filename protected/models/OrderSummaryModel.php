@@ -74,7 +74,7 @@ class OrderSummaryModel extends CFormModel{
     }
     
     public function getPendingInvoice(){
-        $sql = "SELECT invoice_no FROM order_summary WHERE status = 2";
+        $sql = "SELECT invoice_no FROM order_summary WHERE status IN (0, 2)";
         $command = $this->_connection->createCommand($sql);
         return $command->queryAll();
     }
@@ -83,7 +83,7 @@ class OrderSummaryModel extends CFormModel{
         $sql = "SELECT os.discount_id, mi.menu_item_name, mi.menu_item_price, 
                 SUM(od.quantity) AS quantity, SUM(od.amount) AS amount, 
                 rd.discount_name, rd.discount_value, os.cash_tendered, os.cash_changed,
-                os.table_no, os.dine_type
+                os.table_no, os.dine_type, od.item_note
                 FROM order_summary os
                 INNER JOIN order_details od ON od.order_summary_id = os.order_summary_id
                 INNER JOIN menu_items mi ON od.menu_item_id = mi.menu_item_id
@@ -102,6 +102,10 @@ class OrderSummaryModel extends CFormModel{
         $command->bindValues(array(':discount_id'=>$discountId,
                                    ':order_summary_id'=>$orderSummaryId));
         return $command->execute();
+    }
+    
+    public function getCurrentDiscount($invoiceNo){
+        $sql = "SELECT ";
     }
 }
 

@@ -14,9 +14,11 @@ class ReferenceInfoController{
     static $TAX_WITHHELD;
     static $TAX_EXEMPT;
     static $NAME;
-    static $ADDRESS;
+    static $ADDRESS1;
+    static $ADDRESS2;
     static $TIN;
     static $PERMIT_NO;
+    static $EMAIL;
     
     public function __construct() {
         $this->getReceiptInfo();
@@ -36,8 +38,11 @@ class ReferenceInfoController{
                 case 'TAX_WITHHELD':
                     self::$TAX_WITHHELD = $val['variable_value'];
                     break;
-                case 'ADDRESS':
-                    self::$ADDRESS = $val['variable_value'];
+                case 'ADDRESS1':
+                    self::$ADDRESS1 = $val['variable_value'];
+                    break;
+                case 'ADDRESS2':
+                    self::$ADDRESS2 = $val['variable_value'];
                     break;
                 case 'TIN':
                     self::$TIN = $val['variable_value'];
@@ -47,6 +52,9 @@ class ReferenceInfoController{
                     break;
                 case 'TAX_EXEMPT':
                     self::$TAX_EXEMPT = $val['variable_value'];
+                    break;
+                case 'EMAIL':
+                    self::$EMAIL = $val['variable_value'];
                     break;
                 default:
                     echo 'INVALID Receipt Info';

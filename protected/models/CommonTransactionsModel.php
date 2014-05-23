@@ -20,7 +20,7 @@ class CommonTransactionsModel extends CFormModel{
     public function recordTransaction($invoiceNo, $terminalId, $menuItemId, 
             $totalQuantity, $totalAmount, $taxAmount, $netAmount, $discountId,
             $paymentTypeId, $isReprinted, $dineType, $createdByAid, $status, 
-            $itemQuantity, $itemAmount){
+            $itemQuantity, $itemAmount, $itemNote){
        
        $orderSummaryId = 0;
        
@@ -68,7 +68,7 @@ class CommonTransactionsModel extends CFormModel{
 
             $command->bindValues(array(':invoice_no'=>$invoiceNo,
                                        ':terminal_id'=>$terminalId,
-                                       ':total_quantity'=>$totalQuantity,
+                                       ':total_quantity'=>$itemQuantity,
                                        ':total_amount'=>$totalAmount,
                                        ':tax_amount'=>$taxAmount,
                                        ':net_amount'=>$netAmount,
@@ -89,14 +89,16 @@ class CommonTransactionsModel extends CFormModel{
        if ($isExecuteSuccess) {
             
             $sql = "INSERT INTO order_details(order_summary_id, menu_item_id, quantity, 
-                        amount, date_created)
-                        VALUES(:order_summary_id, :menu_item_id, :quantity, :amount, NOW(6))";
+                        amount, date_created, item_note)
+                        VALUES(:order_summary_id, :menu_item_id, :quantity, :amount, NOW(6),
+                        :item_note)";
             $command = $this->_connection->createCommand($sql);
 
             $command->bindValues(array(':order_summary_id' => $orderSummaryId,
                 ':menu_item_id' => $menuItemId,
                 ':quantity' => $itemQuantity,
-                ':amount' => $totalAmount
+                ':amount' => $totalAmount,
+                ':item_note'=>$itemNote
             ));
 
             if ($command->execute()) {

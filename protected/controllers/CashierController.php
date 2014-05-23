@@ -8,6 +8,21 @@
 class CashierController extends Controller
 {
     public $layout = "cashier";
+    public $cashierName;
+    public $cashierId;
+
+    private function setSessionVariables() {
+        if(isset(Yii::app()->session['account_id']) && Yii::app()->session['account_id'] != "")
+        {
+            $aid = Yii::app()->session['account_id'];
+            $accountsModel = new Accounts();    
+            $this->cashierName = $accountsModel->getAccountName($aid);
+            $this->cashierId = $aid;
+        } else {
+            $this->logout();
+        }
+    }
+
     public function actionIndex()
     {
         $menuGroupModel = new MenuGroupModel();
@@ -17,6 +32,8 @@ class CashierController extends Controller
         //Display Active Menu Group
         $menuGroupResult = $menuGroupModel->getActiveMenuGrps();
         
+        $this->setSessionVariables(); //get session variables
+        
         //Initialize Pagination
         $perPage = 6;
         $ctrMenuList = $menuItemsModel->countMenuItems();
@@ -25,7 +42,8 @@ class CashierController extends Controller
         $referenceInfoController->getReceiptInfo();
         
         $this->render('index',array('pages'=>$pages,
-                                    'menuGroupResult'=>$menuGroupResult));
+                                    'menuGroupResult'=>$menuGroupResult,
+                                    'accountName'=>$this->cashierName));
     }
     
     public function actionAddOrderToList() {
@@ -33,6 +51,9 @@ class CashierController extends Controller
         $orderDetailsModel = new OrderDetailsModel();
         $orderSummaryModel = new OrderSummaryModel();
         $referenceInfoController = new ReferenceInfoController(); //required class
+        
+        $this->setSessionVariables(); //get session variables
+        
         $terminalId = 1;
         $totalQuantity = 0;
         $totalAmount = 0;
@@ -42,11 +63,12 @@ class CashierController extends Controller
         $paymentTypeId = 0;
         $isReprinted = 0;
         $dineType = 0;
-        $createdByAid = 1; //session variable of cashier
+        $createdByAid = $this->cashierId; //session variable of cashier
         $status = 0; 
         $menuItemId = $_POST['txtMenuId'];
         $itemQuantity = $_POST['txtQuantity'];
         $itemAmount = $_POST['txtPrice'];
+        $itemNote = $_POST['txtItemNote'];
         
         if(isset($_POST['txtReceiptNo']) && $_POST['txtReceiptNo'] != ""){
             $invoiceNo = $_POST['txtReceiptNo'];
@@ -57,7 +79,7 @@ class CashierController extends Controller
         $orderSummaryId = $commonTransactionModel->recordTransaction($invoiceNo, $terminalId, 
                 $menuItemId, $totalQuantity, $totalAmount, $taxAmount, $netAmount, 
                 $discountId, $paymentTypeId, $isReprinted, $dineType, $createdByAid, 
-                $status, $itemQuantity, $itemAmount);
+                $status, $itemQuantity, $itemAmount, $itemNote);
          
         /*
         if((int)$orderSummaryId > 0){
@@ -194,7 +216,7 @@ class CashierController extends Controller
     
     public function actionPrintReceipt(){
         $referenceInfoController = new ReferenceInfoController(); //required class
-        
+        $this->setSessionVariables(); //get session variables
         $isReprint = $_POST['isReprint'];
         $invoiceNo = $_POST['invoiceNo'];
         $transDetailsResult = $this->searchTransaction($invoiceNo);
@@ -204,20 +226,20 @@ class CashierController extends Controller
                             ReferenceInfoController::getTransactionTypeName($transDetailsResult[0]['TransactionType']).
                             ' - '.$transDetailsResult[0]['TableNo'].'</p>
                         <div class="content" style="width: 100%;margin: 0 auto;font-size:xx-small;" align="center">
-                        <p align="center">'.str_replace('-', '&dash;', ReferenceInfoController::$NAME).'</p>
-                        <p align="center">'.str_replace('-', '&dash;', ReferenceInfoController::$ADDRESS).'</p>
-                        <p align="left">TIN: '.str_replace('-', '&dash;', ReferenceInfoController::$TIN).'</p>
+                        <p align="center" style="word-break: normal;">'.str_replace('-', '&dash;', ReferenceInfoController::$NAME).'</p>
+                        <p align="center" style="word-break: normal;">'.str_replace('-', '&dash;', ReferenceInfoController::$ADDRESS1).'</p>
+                        <p align="center" style="word-break: normal;">'.str_replace('-', '&dash;', ReferenceInfoController::$ADDRESS2).'</p>
+                        <p align="left" style="word-break: normal;">TIN: '.str_replace('-', '&dash;', ReferenceInfoController::$TIN).'</p>
+                        <p align="left" style="word-break: normal;">EMAIL: '.str_replace('-', '&dash;', ReferenceInfoController::$EMAIL).'</p>    
                         <p align="left">DATE: ' . date('d F Y h:i A') .'</p>
                         <p align="left"> Terminal :  Terminal 1</p>
-                        <p align="left">Cashier :  Juan Dela Cruz</p>
+                        <p align="left">Cashier : '.$this->cashierName.'</p>
                         </div>';
        
         /** Transaction Details - Item List **/
         $htmlBodyContentHeader = '<table style=\"text-align: right;font-size: small;font-size:xx-small;\"><thead><tr>'.
             '<td style=\"width: 20%\">Item</td><td>QTY</td><td>Price</td><td>Amount</td>'.
             '</tr></thead>';
-        
-        //$transDetailsResult = $this->searchTransaction($invoiceNo);
         
         $htmlBodyContentInfo = '<tbody>';
         $subTotalAmount = 0;
@@ -230,12 +252,22 @@ class CashierController extends Controller
             $discountName = $val['DiscountName'];
             $cashTenderedAmt = $val['CashTendered'];
             $cashChangedAmt = $val['CashChanged'];
-            $htmlBodyContentInfo .= '<tr>'.
+            if($val['ItemNote'] != ""){
+                $htmlBodyContentInfo .= '<tr>'.
+                                        '<td style=\"width: 20px;\">'.$val['MenuItemName'].'</td>'.
+                                        '<td>'.$val['Quantity'].'</td>'.
+                                        '<td>'.$val['MenuItemPrice'].'</td>'.
+                                        '<td>'.$val['Amount'].'</td>'.
+                                    '</tr>'.
+                                    '<tr><th colspan=4><label style=\"font-style: italic;width: 130px;font-size: 10px;\"> >>>'.$val['ItemNote'].'</label></th></tr>';
+            } else {
+                $htmlBodyContentInfo .= '<tr>'.
                                         '<td style=\"width: 20px;\">'.$val['MenuItemName'].'</td>'.
                                         '<td>'.$val['Quantity'].'</td>'.
                                         '<td>'.$val['MenuItemPrice'].'</td>'.
                                         '<td>'.$val['Amount'].'</td>'.
                                     '</tr>';
+            }
         }
         
         $htmlBodyContentFooter = "</tbody></table>";
@@ -245,11 +277,10 @@ class CashierController extends Controller
         /***************** Transaction Details - Total Part*******************/
         
         $htmlBodyContentHeader2 = '<table style=\"text-align: right;font-size:xx-small;\"><thead>'.
-            '<tr><td>Total (VAT Inclusive)</td><td>'.$totalAmount.'</td></tr>'.
-            '<tr><td>Subtotal (12% VAT) </td><td>'.$subTotalAmount.'</td></tr>'.       
+            '<tr><td>Subtotal (12% VAT Inclusive) </td><td>'.$subTotalAmount.'</td></tr>'.       
             '<tr><td>VAT Amount</td><td>'.$vatAmount.'</td></tr>'.
-            '<tr><td>Less 12% VAT</td><td>'.$vatExemptAmount.'</td></tr>'.
-            '<tr><td>Less: <label style="font-size: xxx-small;">'.$discountName.'</label></td><td>'.$discountAmount.'</td></tr>'.
+            //'<tr><td>Less 12% VAT</td><td>'.$vatExemptAmount.'</td></tr>'.
+            '<tr><td>Discount  <label style="font-size: xxx-small;">'.$discountName.'</label></td><td>('.$discountAmount.')</td></tr>'.
             '<tr><td>Amount Due</td><td>'.$totalAmount.'</td></tr>'.        
             '</thead>';
         
@@ -260,7 +291,7 @@ class CashierController extends Controller
         
         $htmlBodyContent3 = '<table style=\"text-align: right;font-size:xx-small;\"><thead>'.
                             '<tr><td>Cash Tendered: </td> <td>'.$cashTenderedAmt.'</td>'.
-                            '<tr><td>Cash Changed: </td> <td>'.$cashChangedAmt.'</td>'.
+                            '<tr><td>Cash Change: </td> <td>'.$cashChangedAmt.'</td>'.
                             '</tr>';
         
         $htmlBodyFooter = '<hr/>
@@ -297,20 +328,22 @@ class CashierController extends Controller
             array_push($orderDetailsResult, array("MenuItemName" => $val['menu_item_name'],
                 "MenuItemPrice" => $val['menu_item_price'], "Quantity" => $val['quantity'],
                 "Amount" => number_format($val['amount'], 2, '.', ','),
-                "InvoiceNo" => $invoiceNo, "SubTotalAmount" => number_format($subTotalAmount, 2, '.', ','),
+                "InvoiceNo" => $invoiceNo, "SubTotalAmount" => $subTotalAmount,
                 "TotalAmount" => $totalAmount, "VatAmount" => $vatAmount,
                 "DiscountName"=>$val['discount_name'],"CashTendered"=>$val['cash_tendered'],
-                "CashChanged"=>$val['cash_changed'],"TableNo"=>$val['table_no'],"TransactionType"=>$val['dine_type']));
+                "CashChanged"=>$val['cash_changed'],"TableNo"=>$val['table_no'],
+                "TransactionType"=>$val['dine_type'],"ItemNote"=>$val['item_note']));
         }
         
         $vatExemptAmt = 0;
         $discountAmount = 0;
         if(is_null($discountId)){
             $vatAmount = $subTotalAmount * ReferenceInfoController::$TAX_WITHHELD;
+            $subTotalAmount = $subTotalAmount - $vatAmount;
             $totalAmount = $subTotalAmount + $vatAmount; //amount inclusive with 
         } else {
-            $vatExemptAmt = $subTotalAmount / (float)ReferenceInfoController::$TAX_EXEMPT;
-            $discountAmount = $vatExemptAmt * $discountValue;
+            //$vatExemptAmt = $subTotalAmount / (float)ReferenceInfoController::$TAX_EXEMPT;
+            $discountAmount = $subTotalAmount * $discountValue;
             $totalAmount = $subTotalAmount - $discountAmount; 
         }
 
@@ -321,6 +354,7 @@ class CashierController extends Controller
             $orderDetailsResult[$i]['TotalAmount'] = number_format($totalAmount, 2, '.',',');
             $orderDetailsResult[$i]['VatExemptAmount'] = number_format($vatExemptAmt, 2, '.',',');
             $orderDetailsResult[$i]['DiscountAmount'] = number_format($discountAmount, 2, '.', ',');
+            $orderDetailsResult[$i]['SubTotalAmount'] = number_format($subTotalAmount, 2, '.', ',');
             
             $i++;
         }
@@ -363,6 +397,14 @@ class CashierController extends Controller
         
         header('Content-Type: application/html; charset="UTF-8"');
         echo CJSON::encode($msg);
+    }
+    
+    /**
+     * Logs out the current user and redirect to homepage.
+     */
+    public function logout() {
+        Yii::app()->user->logout();
+        $this->redirect(Yii::app()->homeUrl);
     }
 }
 ?>

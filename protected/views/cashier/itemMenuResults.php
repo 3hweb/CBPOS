@@ -3,17 +3,19 @@
 while ($menuItemsResult = mysql_fetch_assoc($rsd))
 {?>
     <div class="grumpy-image">
-        <?php
-            echo TbHtml::imageButton($menuItemsResult['menu_item_image_path'], array(
-                'onclick'=>'displayMenu("'.$menuItemsResult['menu_item_name'].'", "'.
-                                           $menuItemsResult['menu_item_price'].'", "'.
-                                           $menuItemsResult['menu_item_id'].'");',
-                'data-toggle' => 'modal',
-                'data-target' => '#myModal',
-                'style' => 'height:120px; width:180px',
-            ));
-            echo '&nbsp&nbsp';
-        ?>
+            <?php
+                echo TbHtml::label($menuItemsResult['menu_item_name'], "", array(
+                    'onclick'=>'displayMenu("'.$menuItemsResult['menu_item_name'].'", "'.
+                                               $menuItemsResult['menu_item_price'].'", "'.
+                                               $menuItemsResult['menu_item_id'].'");',
+                    'data-toggle' => 'modal',
+                    'data-target' => '#myModal',
+                    'style' => 'height:120px; width:180px; cursor: pointer;
+                        font-size: 25px;text-wrap: normal;background-color: blue;
+                        background-color: #FFD324;padding-top: 10px;',
+                ));
+                echo '&nbsp&nbsp';
+            ?>
     </div>
 <?php
 }?>

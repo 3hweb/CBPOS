@@ -24,7 +24,7 @@ $(document).ready(function(){
 	$("#1").css({'background-color' : '#006699'});
 	showLoader();
 	$("#content").load("index.php?r=cashier/itemMenuResults&page=1", hideLoader);
-        
+        $('#slider1').tinycarousel();
 });
 </script>
 
@@ -47,7 +47,7 @@ $(document).ready(function(){
 </div>
 
 <div id="header">
-    <div id="logo" style="float: left;">
+    <div id="logo" style="float: left; visibility: hidden;">
         <img src="images/logo.png" alt="chicboy"/>
     </div>
     <!--SEARCH BUTTON-->
@@ -66,7 +66,7 @@ $(document).ready(function(){
 
 <!--RECEIPT INFORMATION-->
 <div id="sidebar" style="margin-top: 180px; float: left; position: absolute; margin-left: -50px;">
-    <?php $this->renderPartial('widgetReceiptInfo'); ?>
+    <?php $this->renderPartial('widgetReceiptInfo',array('cashierName'=>$accountName)); ?>
 </div>
 
 <!--PAGING CONTENT-->
@@ -93,19 +93,35 @@ $(document).ready(function(){
 <div class="clear"></div>
 
 <!--MENU GROUPS DIV -->
-<div style="margin: 550px 0 0 400px; float: right; position: absolute;">
-    <?php 
-        foreach($menuGroupResult as $val){
-            $menuGrpId = $val['menu_group_id'];
-            $menuGrpName = $val['menu_group_name'];
-            
-            echo '<input type="radio" id='.trim($menuGrpId).' name='.trim($menuGrpId).' value='.$menuGrpId.' /> '.$menuGrpName.'';
-            echo '&nbsp&nbsp';
-        }
-    ?>
+<div style="margin: 515px 0 0 390px; ">
+<!--    <div id="slider1">
+        <a class="buttons prev" href="#">&#60;</a>
+        <div class="viewport">
+            <ul class="overview">
+                <?php
+//                  foreach($menuGroupResult as $val){
+//                  $menuGrpId = $val['menu_group_id'];
+//                  $menuGrpName = $val['menu_group_name'];
+//
+//                  echo '<li>';
+//                  echo TbHtml::label($menuGrpName, "", array(
+//                        'style' => 'height:100px; width:210px; cursor: pointer;
+//                        font-size: 25px;text-wrap: normal;background-color: blue;
+//                        background-color: #FFD324;padding-top: 10px;',
+//                    ));
+//                  echo '</li>';
+////                  echo '<li><input type="radio" id='.trim($menuGrpId).' name='.trim($menuGrpId).' value='.$menuGrpId.' /> '.$menuGrpName.'</li>';
+////                  echo '&nbsp&nbsp';
+//                  }
+                 
+                ?>
+            </ul>
+        </div>
+        <a class="buttons next" href="#">&#62;</a>
+    </div>-->
 </div>   
 
 <!--MAIN BUTTONS-->
-<div style="margin-left: -50px; margin-top: 670px; position: absolute; float: left;">
+<div style="margin-left: -50px; margin-top: 150px; position: absolute; float: left;">
     <?php $this->renderPartial("widgetMainButtons"); ?>
 </div>   
